@@ -10,6 +10,7 @@ import '../../features/authentication/presentation/providers/auth_state.dart';
 import '../../features/authentication/presentation/screens/change_password_screen.dart';
 import '../../features/authentication/presentation/screens/login_screen.dart';
 import '../../features/dashboard/presentation/screens/dashboard_screen.dart';
+import '../../features/examinations/presentation/exam_form_screen.dart';
 import '../../features/examinations/presentation/exams_screen.dart';
 import '../../features/fees/presentation/screens/fee_dashboard_screen.dart';
 import '../../features/fees/presentation/screens/fee_student_ledger_screen.dart';
@@ -191,9 +192,22 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const HomeworkScreen(),
       ),
       GoRoute(
-          path: AppRoute.exams.path,
-          name: AppRoute.exams.name,
-          builder: (context, state) => const ExamsScreen(),),
+        path: AppRoute.exams.path,
+        name: AppRoute.exams.name,
+        builder: (context, state) => const ExamsScreen(),
+      ),
+      GoRoute(
+        path: AppRoute.addExam.path,
+        name: AppRoute.addExam.name,
+        builder: (context, state) => const ExamFormScreen(),
+      ),
+      GoRoute(
+        path: AppRoute.editExam.path,
+        name: AppRoute.editExam.name,
+        builder: (context, state) => ExamFormScreen(
+          examId: state.pathParameters['examId'],
+        ),
+      ),
       GoRoute(
         path: AppRoute.studentDetails.path,
         name: AppRoute.studentDetails.name,

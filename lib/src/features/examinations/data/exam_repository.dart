@@ -3,35 +3,34 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../domain/entities/exam.dart';
 import '../domain/entities/exam_mark.dart';
 import '../domain/repositories/exam_repository.dart';
+import 'models/exam_model.dart';
 
 final class SupabaseExamRepository implements ExamRepository {
   SupabaseExamRepository(this._client);
   final SupabaseClient _client;
 
   @override
-  Future<List<Exam>> list() async {
-    final rows = await _client
-        .from('exams')
-        .select()
-        .eq('is_archived', false)
-        .order('exam_date', ascending: false);
-    return rows
-        .cast<Map<String, Object?>>()
-        .map(
-          (r) => Exam(
-            id: r['id'] as String,
-            name: r['name'] as String,
-            type: r['type'] as String,
-            date: DateTime.parse(r['exam_date'] as String),
-            status: r['status'] as String,
-          ),
-        )
-        .toList();
+  Future<List<Exam>> list({String? query, String? academicYearId}) async {
+    var request = _client.from('exams').select().eq('is_archived', false);
+
+    if (query != null && query.trim().isNotEmpty) {
+      request = request.ilike('name', '%${query.trim()}%');
+    }
+
+    if (academicYearId != null && academicYearId.isNotEmpty) {
+      request = request.eq('academic_year_id', academicYearId);
+    }
+
+    final rows = await request.order('start_date', ascending: false);
+    return rows.cast<Map<String, Object?>>().map(ExamModel.fromJson).toList();
   }
 
   @override
-  Future<void> createExam(Map<String, Object?> values) =>
-      _client.from('exams').insert(values);
+  Future<void> createExam(Map<String, Object?> values) {
+    final data = Map<String, Object?>.from(values);
+    data['created_by'] = _client.auth.currentUser!.id;
+    return _client.from('exams').insert(data);
+  }
 
   @override
   Future<void> updateExam(String id, Map<String, Object?> values) =>
@@ -45,6 +44,7 @@ final class SupabaseExamRepository implements ExamRepository {
   Future<void> archive(String id) => _client
       .from('exams')
       .update({'is_archived': true, 'status': 'archived'}).eq('id', id);
+
   @override
   Future<void> saveMarks({
     required String examSubjectId,

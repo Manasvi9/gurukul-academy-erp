@@ -24,6 +24,8 @@ enum AppRoute {
   feeStudentLedger('/fees/students/:studentId'),
   homework('/homework'),
   exams('/exams'),
+  addExam('/exams/add'),
+  editExam('/exams/:examId/edit'),
   notFound('/not-found');
 
   const AppRoute(this.path);
