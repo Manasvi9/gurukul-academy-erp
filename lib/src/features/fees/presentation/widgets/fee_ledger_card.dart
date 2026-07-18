@@ -18,7 +18,9 @@ final class FeeLedgerCard extends StatelessWidget {
       child: ListTile(
         onTap: onTap,
         title: Text(ledger.studentName),
-        subtitle: Text('${ledger.className} ${ledger.sectionName} • ${ledger.srNumber}'),
+        subtitle: Text(
+          '${ledger.className} ${ledger.sectionName} • ${ledger.srNumber}',
+        ),
         trailing: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,

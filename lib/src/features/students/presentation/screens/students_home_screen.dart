@@ -52,7 +52,8 @@ final class StudentsHomeScreen extends ConsumerWidget {
                 if (students.isEmpty) {
                   return const AppEmptyView(
                     title: 'No recent students',
-                    message: 'Recently opened student profiles will appear here.',
+                    message:
+                        'Recently opened student profiles will appear here.',
                   );
                 }
                 return StudentSummaryTable(

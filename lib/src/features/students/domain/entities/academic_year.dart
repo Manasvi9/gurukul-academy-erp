@@ -1,4 +1,4 @@
-final class AcademicYear {
+class AcademicYear {
   const AcademicYear({
     required this.id,
     required this.name,

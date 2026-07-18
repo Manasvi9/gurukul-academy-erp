@@ -1,15 +1,20 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/academic_structure/presentation/screens/classes_screen.dart';
+import '../../features/academic_structure/presentation/screens/sections_screen.dart';
+import '../../features/academic_structure/presentation/screens/subjects_screen.dart';
 import '../../features/authentication/domain/entities/auth_role.dart';
 import '../../features/authentication/presentation/providers/auth_providers.dart';
 import '../../features/authentication/presentation/providers/auth_state.dart';
 import '../../features/authentication/presentation/screens/change_password_screen.dart';
 import '../../features/authentication/presentation/screens/login_screen.dart';
 import '../../features/dashboard/presentation/screens/dashboard_screen.dart';
+import '../../features/examinations/presentation/exams_screen.dart';
 import '../../features/fees/presentation/screens/fee_dashboard_screen.dart';
 import '../../features/fees/presentation/screens/fee_student_ledger_screen.dart';
 import '../../features/fees/presentation/screens/fee_student_search_screen.dart';
+import '../../features/homework/presentation/screens/homework_screen.dart';
 import '../../features/students/presentation/screens/student_class_list_screen.dart';
 import '../../features/students/presentation/screens/student_details_screen.dart';
 import '../../features/students/presentation/screens/student_form_screen.dart';
@@ -17,6 +22,7 @@ import '../../features/students/presentation/screens/student_list_screen.dart';
 import '../../features/students/presentation/screens/student_search_screen.dart';
 import '../../features/students/presentation/screens/student_section_list_screen.dart';
 import '../../features/students/presentation/screens/students_home_screen.dart';
+import '../../features/teachers/presentation/screens/teachers_screen.dart';
 import '../../shared/screens/not_found_screen.dart';
 import 'app_routes.dart';
 
@@ -101,6 +107,26 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const StudentsHomeScreen(),
       ),
       GoRoute(
+        path: AppRoute.teachers.path,
+        name: AppRoute.teachers.name,
+        builder: (context, state) => const TeachersScreen(),
+      ),
+      GoRoute(
+        path: AppRoute.classes.path,
+        name: AppRoute.classes.name,
+        builder: (context, state) => const ClassesScreen(),
+      ),
+      GoRoute(
+        path: AppRoute.sections.path,
+        name: AppRoute.sections.name,
+        builder: (context, state) => const SectionsScreen(),
+      ),
+      GoRoute(
+        path: AppRoute.subjects.path,
+        name: AppRoute.subjects.name,
+        builder: (context, state) => const SubjectsScreen(),
+      ),
+      GoRoute(
         path: AppRoute.addStudent.path,
         name: AppRoute.addStudent.name,
         builder: (context, state) => const StudentFormScreen(),
@@ -159,6 +185,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           academicYearId: state.uri.queryParameters['academicYearId'] ?? '',
         ),
       ),
+      GoRoute(
+        path: AppRoute.homework.path,
+        name: AppRoute.homework.name,
+        builder: (context, state) => const HomeworkScreen(),
+      ),
+      GoRoute(
+          path: AppRoute.exams.path,
+          name: AppRoute.exams.name,
+          builder: (context, state) => const ExamsScreen(),),
       GoRoute(
         path: AppRoute.studentDetails.path,
         name: AppRoute.studentDetails.name,

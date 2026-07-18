@@ -1,4 +1,4 @@
-final class DashboardCard {
+class DashboardCard {
   const DashboardCard({
     required this.key,
     required this.title,

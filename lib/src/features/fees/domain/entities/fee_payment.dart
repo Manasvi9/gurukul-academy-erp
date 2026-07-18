@@ -7,7 +7,7 @@ enum FeePaymentStatus {
   final String value;
 }
 
-final class FeePayment {
+class FeePayment {
   const FeePayment({
     required this.id,
     required this.studentId,

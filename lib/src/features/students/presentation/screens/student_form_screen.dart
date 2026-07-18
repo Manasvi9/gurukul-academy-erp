@@ -177,7 +177,7 @@ final class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
         ),
         const SizedBox(height: AppSpacing.md),
         DropdownButtonFormField<StudentGender>(
-          value: _gender,
+          initialValue: _gender,
           items: StudentGender.values
               .map(
                 (gender) => DropdownMenuItem(
@@ -371,7 +371,7 @@ final class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
     required ValueChanged<T?> onChanged,
   }) {
     return DropdownButtonFormField<T>(
-      value: value,
+      initialValue: value,
       validator: (value) => value == null ? '$label is required.' : null,
       decoration: InputDecoration(labelText: label),
       items: items
@@ -414,6 +414,9 @@ final class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
 
   Future<void> _save() async {
     if (!(_formKey.currentState?.validate() ?? false)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please complete the required fields.')),
+      );
       return;
     }
     if (_admissionDate == null || _dateOfBirth == null) {
@@ -425,6 +428,14 @@ final class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
     if (_usesTransport && _villageId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Select transport village.')),
+      );
+      return;
+    }
+    if (_academicYearId == null || _classId == null || _sectionId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Select an academic year, class, and section.'),
+        ),
       );
       return;
     }
@@ -452,6 +463,10 @@ final class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
       if (!mounted || studentId == null) {
         return;
       }
+      _refreshStudentData();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Student added successfully.')),
+      );
       context.go('/students/$studentId');
       return;
     }
@@ -463,7 +478,19 @@ final class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
     if (!mounted || !saved) {
       return;
     }
+    _refreshStudentData();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Student updated successfully.')),
+    );
     context.go('/students/${widget.studentId}');
+  }
+
+  void _refreshStudentData() {
+    ref.invalidate(recentlyViewedStudentsProvider);
+    ref.invalidate(studentSearchControllerProvider);
+    if (widget.studentId != null) {
+      ref.invalidate(studentDetailsProvider(widget.studentId!));
+    }
   }
 
   void _loadEditData(StudentDetail student) {

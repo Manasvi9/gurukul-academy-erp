@@ -1,4 +1,4 @@
-final class StudentSummary {
+class StudentSummary {
   const StudentSummary({
     required this.id,
     required this.rollNumber,

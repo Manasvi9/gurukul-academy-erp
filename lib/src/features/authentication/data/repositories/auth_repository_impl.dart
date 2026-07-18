@@ -2,7 +2,6 @@ import 'dart:async';
 
 import '../../../../core/models/result.dart';
 import '../../../../core/repositories/base_repository.dart';
-import '../../domain/entities/auth_role.dart';
 import '../../domain/entities/auth_session.dart';
 import '../../domain/entities/auth_user.dart';
 import '../../domain/entities/login_credentials.dart';
@@ -28,7 +27,7 @@ final class AuthRepositoryImpl extends BaseRepository
   final AuthLocalDataSource _localDataSource;
   final _customUserController = StreamController<AuthUser?>.broadcast();
 
-  AuthSession? _currentCustomSession;
+  AuthSessionModel? _currentCustomSession;
 
   @override
   Future<Result<AuthSession>> login(LoginCredentials credentials) async {
@@ -38,14 +37,15 @@ final class AuthRepositoryImpl extends BaseRepository
         await _localDataSource.clearCustomSession();
         _currentCustomSession = null;
         _customUserController.add(null);
-        return _staffRemoteDataSource.login(staffCredentials);
+        return (await _staffRemoteDataSource.login(staffCredentials))
+            .toEntity();
       }
 
       final session = await _customRemoteDataSource.login(credentials);
       _currentCustomSession = session;
       await _localDataSource.saveCustomSession(session);
-      _customUserController.add(session.user);
-      return session;
+      _customUserController.add(session.user.toEntity());
+      return session.toEntity();
     });
   }
 
@@ -54,7 +54,7 @@ final class AuthRepositoryImpl extends BaseRepository
     return guard(() async {
       final staffSession = await _staffRemoteDataSource.restoreSession();
       if (staffSession != null) {
-        return staffSession;
+        return staffSession.toEntity();
       }
 
       final customSession = await _localDataSource.readCustomSession();
@@ -64,8 +64,8 @@ final class AuthRepositoryImpl extends BaseRepository
 
       if (!customSession.isExpired) {
         _currentCustomSession = customSession;
-        _customUserController.add(customSession.user);
-        return customSession;
+        _customUserController.add(customSession.user.toEntity());
+        return customSession.toEntity();
       }
 
       final refreshToken = customSession.refreshToken;
@@ -79,8 +79,8 @@ final class AuthRepositoryImpl extends BaseRepository
       );
       _currentCustomSession = refreshedSession;
       await _localDataSource.saveCustomSession(refreshedSession);
-      _customUserController.add(refreshedSession.user);
-      return refreshedSession;
+      _customUserController.add(refreshedSession.user.toEntity());
+      return refreshedSession.toEntity();
     });
   }
 
@@ -124,7 +124,7 @@ final class AuthRepositoryImpl extends BaseRepository
         );
         _currentCustomSession = updatedSession;
         await _localDataSource.saveCustomSession(updatedSession);
-        _customUserController.add(updatedSession.user);
+        _customUserController.add(updatedSession.user.toEntity());
         return;
       }
 
@@ -143,7 +143,7 @@ final class AuthRepositoryImpl extends BaseRepository
   @override
   Stream<AuthUser?> watchAuthUser() {
     return StreamGroup.merge([
-      _staffRemoteDataSource.watchUser(),
+      _staffRemoteDataSource.watchUser().map((user) => user?.toEntity()),
       _customUserController.stream,
     ]);
   }
@@ -153,6 +153,9 @@ final class StreamGroup {
   const StreamGroup._();
 
   static Stream<T> merge<T>(Iterable<Stream<T>> streams) {
+    // The controller remains open while consumers are subscribed and is owned
+    // by the returned stream's lifecycle.
+    // ignore: close_sinks
     final controller = StreamController<T>.broadcast();
     final subscriptions = <StreamSubscription<T>>[];
 

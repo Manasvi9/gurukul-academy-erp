@@ -1,4 +1,4 @@
-final class ClassFeeStructure {
+class ClassFeeStructure {
   const ClassFeeStructure({
     required this.id,
     required this.academicYearId,

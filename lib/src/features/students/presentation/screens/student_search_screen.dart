@@ -31,7 +31,9 @@ final class StudentSearchScreen extends ConsumerWidget {
                 prefixIcon: Icon(Icons.search),
               ),
               onChanged: (value) {
-                ref.read(studentSearchControllerProvider.notifier).search(value);
+                ref
+                    .read(studentSearchControllerProvider.notifier)
+                    .search(value);
               },
             ),
             const SizedBox(height: AppSpacing.lg),
@@ -46,7 +48,8 @@ final class StudentSearchScreen extends ConsumerWidget {
                 }
                 return StudentSummaryTable(
                   students: students,
-                  onStudentTap: (student) => context.go('/students/${student.id}'),
+                  onStudentTap: (student) =>
+                      context.go('/students/${student.id}'),
                 );
               },
             ),

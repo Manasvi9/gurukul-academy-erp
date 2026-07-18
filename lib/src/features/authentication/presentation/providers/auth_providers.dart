@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 import '../../../../app/bootstrap/app_bootstrap.dart';
-import '../../../../core/models/result.dart';
 import '../../data/datasources/auth_local_datasource.dart';
 import '../../data/datasources/custom_auth_remote_datasource.dart';
 import '../../data/datasources/staff_auth_remote_datasource.dart';
@@ -23,7 +23,8 @@ final staffAuthRemoteDataSourceProvider = Provider<StaffAuthRemoteDataSource>((
   return SupabaseStaffAuthRemoteDataSource(ref.watch(supabaseClientProvider));
 });
 
-final customAuthRemoteDataSourceProvider = Provider<CustomAuthRemoteDataSource>((
+final customAuthRemoteDataSourceProvider =
+    Provider<CustomAuthRemoteDataSource>((
   ref,
 ) {
   return SupabaseFunctionCustomAuthRemoteDataSource(
@@ -186,8 +187,8 @@ final class AuthController extends StateNotifier<AuthState> {
           return false;
         }
         state = state.markPasswordChanged().copyWith(
-          status: AuthStatus.authenticated,
-        );
+              status: AuthStatus.authenticated,
+            );
         return true;
       },
       failure: (failure) {

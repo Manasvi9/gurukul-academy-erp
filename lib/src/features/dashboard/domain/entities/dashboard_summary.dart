@@ -1,7 +1,7 @@
 import 'dashboard_card.dart';
 import 'dashboard_notification.dart';
 
-final class DashboardSummary {
+class DashboardSummary {
   const DashboardSummary({
     required this.role,
     required this.title,

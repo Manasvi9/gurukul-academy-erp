@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 import '../../../../app/bootstrap/app_bootstrap.dart';
 import '../../data/datasources/attendance_remote_datasource.dart';
@@ -12,7 +13,9 @@ final attendanceRemoteDataSourceProvider =
 });
 
 final attendanceRepositoryProvider = Provider<AttendanceRepository>((ref) {
-  return AttendanceRepositoryImpl(ref.watch(attendanceRemoteDataSourceProvider));
+  return AttendanceRepositoryImpl(
+    ref.watch(attendanceRemoteDataSourceProvider),
+  );
 });
 
 final class AttendanceRosterRequest {
@@ -55,7 +58,8 @@ final attendanceRosterProvider =
 });
 
 final studentAttendanceHistoryProvider =
-    FutureProvider.family<List<AttendanceRecord>, String>((ref, studentId) async {
+    FutureProvider.family<List<AttendanceRecord>, String>(
+        (ref, studentId) async {
   final result =
       await ref.watch(attendanceRepositoryProvider).studentHistory(studentId);
   return result.when(

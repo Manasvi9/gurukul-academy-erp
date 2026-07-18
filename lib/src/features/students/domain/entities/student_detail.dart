@@ -1,6 +1,6 @@
 import 'student_gender.dart';
 
-final class StudentDetail {
+class StudentDetail {
   const StudentDetail({
     required this.id,
     required this.srNumber,

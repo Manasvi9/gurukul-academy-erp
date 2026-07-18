@@ -14,10 +14,9 @@ final dashboardRemoteDataSourceProvider = Provider<DashboardRemoteDataSource>((
 ) {
   final authState = ref.watch(authControllerProvider);
   final role = authState.user?.role;
-  final customAccessToken =
-      role == AuthRole.parent || role == AuthRole.student
-          ? authState.session?.accessToken
-          : null;
+  final customAccessToken = role == AuthRole.parent || role == AuthRole.student
+      ? authState.session?.accessToken
+      : null;
 
   return SupabaseDashboardRemoteDataSource(
     ref.watch(supabaseClientProvider),

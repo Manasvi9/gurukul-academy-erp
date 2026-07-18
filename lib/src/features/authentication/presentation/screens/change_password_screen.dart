@@ -111,12 +111,11 @@ final class _ChangePasswordScreenState
       return;
     }
 
-    final success = await ref
-        .read(authControllerProvider.notifier)
-        .changePassword(
-          currentPassword: _currentPasswordController.text,
-          newPassword: _newPasswordController.text,
-        );
+    final success =
+        await ref.read(authControllerProvider.notifier).changePassword(
+              currentPassword: _currentPasswordController.text,
+              newPassword: _newPasswordController.text,
+            );
     if (!mounted || !success) {
       return;
     }

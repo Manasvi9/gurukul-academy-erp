@@ -68,18 +68,30 @@ final class StudentDetailsScreen extends ConsumerWidget {
                   child: ListView(
                     padding: const EdgeInsets.all(AppSpacing.md),
                     children: [
-                      StudentInfoTile(label: 'SR Number', value: detail.srNumber),
+                      StudentInfoTile(
+                        label: 'SR Number',
+                        value: detail.srNumber,
+                      ),
                       StudentInfoTile(
                         label: 'Admission Date',
                         value: DateFormatter.displayDate(detail.admissionDate),
                       ),
-                      StudentInfoTile(label: 'Gender', value: detail.gender.label),
+                      StudentInfoTile(
+                        label: 'Gender',
+                        value: detail.gender.label,
+                      ),
                       StudentInfoTile(
                         label: 'DOB',
                         value: DateFormatter.displayDate(detail.dateOfBirth),
                       ),
-                      StudentInfoTile(label: 'Father', value: detail.fatherName),
-                      StudentInfoTile(label: 'Mother', value: detail.motherName),
+                      StudentInfoTile(
+                        label: 'Father',
+                        value: detail.fatherName,
+                      ),
+                      StudentInfoTile(
+                        label: 'Mother',
+                        value: detail.motherName,
+                      ),
                       StudentInfoTile(
                         label: 'Parent Mobile',
                         value: detail.parentMobileNumber,
@@ -113,7 +125,8 @@ final class StudentDetailsScreen extends ConsumerWidget {
                 ),
                 const AppEmptyView(
                   title: 'Transfer Certificate',
-                  message: 'Transfer certificate actions belong to the TC module.',
+                  message:
+                      'Transfer certificate actions belong to the TC module.',
                 ),
               ],
             ),
@@ -156,6 +169,11 @@ final class StudentDetailsScreen extends ConsumerWidget {
     if (!context.mounted || !archived) {
       return;
     }
+    ref.invalidate(recentlyViewedStudentsProvider);
+    ref.invalidate(studentDetailsProvider(studentId));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Student archived successfully.')),
+    );
     context.go('/students');
   }
 }

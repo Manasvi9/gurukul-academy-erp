@@ -1,4 +1,4 @@
-final class ClassSection {
+class ClassSection {
   const ClassSection({
     required this.id,
     required this.classId,

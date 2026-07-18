@@ -13,6 +13,11 @@ final class AppFoundationScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final networkStatus = ref.watch(networkStatusProvider);
+    final isOffline = networkStatus.when(
+      data: (status) => status == NetworkStatus.offline,
+      error: (_, __) => false,
+      loading: () => false,
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -20,8 +25,7 @@ final class AppFoundationScreen extends ConsumerWidget {
       ),
       body: Column(
         children: [
-          if (networkStatus.valueOrNull == NetworkStatus.offline)
-            const OfflineBanner(),
+          if (isOffline) const OfflineBanner(),
           Expanded(
             child: ResponsivePage(
               child: ListView(

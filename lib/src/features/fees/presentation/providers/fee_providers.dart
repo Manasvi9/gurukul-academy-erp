@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 import '../../../../app/bootstrap/app_bootstrap.dart';
 import '../../../students/domain/entities/student_summary.dart';
@@ -29,7 +30,8 @@ final manageFeePaymentUseCaseProvider = Provider<ManageFeePaymentUseCase>((
   return ManageFeePaymentUseCase(ref.watch(feeRepositoryProvider));
 });
 
-final feeDashboardProvider = FutureProvider<List<StudentFeeLedger>>((ref) async {
+final feeDashboardProvider =
+    FutureProvider<List<StudentFeeLedger>>((ref) async {
   final result = await ref.watch(feeDashboardUseCaseProvider)();
   return result.when(
     success: (value) => value,
@@ -43,7 +45,8 @@ final feeStudentSearchProvider = StateNotifierProvider.autoDispose<
 });
 
 final studentFeeLedgerProvider =
-    FutureProvider.family<StudentFeeLedger, FeeLedgerRequest>((ref, request) async {
+    FutureProvider.family<StudentFeeLedger, FeeLedgerRequest>(
+        (ref, request) async {
   final result = await ref.watch(feeRepositoryProvider).studentLedger(
         studentId: request.studentId,
         academicYearId: request.academicYearId,
@@ -55,7 +58,8 @@ final studentFeeLedgerProvider =
 });
 
 final feePaymentHistoryProvider =
-    FutureProvider.family<List<FeePayment>, FeeLedgerRequest>((ref, request) async {
+    FutureProvider.family<List<FeePayment>, FeeLedgerRequest>(
+        (ref, request) async {
   final result = await ref.watch(feeRepositoryProvider).paymentHistory(
         studentId: request.studentId,
         academicYearId: request.academicYearId,

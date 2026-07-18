@@ -1,4 +1,4 @@
-final class SchoolClass {
+class SchoolClass {
   const SchoolClass({
     required this.id,
     required this.name,

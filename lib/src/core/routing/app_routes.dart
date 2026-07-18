@@ -8,6 +8,10 @@ enum AppRoute {
   parentDashboard('/parent-dashboard'),
   studentDashboard('/student-dashboard'),
   students('/students'),
+  teachers('/teachers'),
+  classes('/academic-structure/classes'),
+  sections('/academic-structure/sections'),
+  subjects('/academic-structure/subjects'),
   addStudent('/students/add'),
   studentSearch('/students/search'),
   studentClasses('/students/classes'),
@@ -18,6 +22,8 @@ enum AppRoute {
   fees('/fees'),
   feeSearch('/fees/search'),
   feeStudentLedger('/fees/students/:studentId'),
+  homework('/homework'),
+  exams('/exams'),
   notFound('/not-found');
 
   const AppRoute(this.path);

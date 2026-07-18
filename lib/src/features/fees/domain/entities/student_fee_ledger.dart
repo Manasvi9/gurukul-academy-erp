@@ -1,4 +1,4 @@
-final class StudentFeeLedger {
+class StudentFeeLedger {
   const StudentFeeLedger({
     required this.studentId,
     required this.studentName,

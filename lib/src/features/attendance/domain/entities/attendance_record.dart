@@ -1,6 +1,6 @@
 import 'attendance_status.dart';
 
-final class AttendanceRecord {
+class AttendanceRecord {
   const AttendanceRecord({
     required this.studentId,
     required this.studentName,

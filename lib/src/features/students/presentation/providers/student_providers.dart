@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 import '../../../../app/bootstrap/app_bootstrap.dart';
 import '../../../authentication/domain/entities/auth_role.dart';
@@ -26,13 +27,13 @@ import '../../domain/usecases/get_transport_villages_usecase.dart';
 import '../../domain/usecases/save_student_usecase.dart';
 import '../../domain/usecases/search_students_usecase.dart';
 
-final studentRemoteDataSourceProvider = Provider<StudentRemoteDataSource>((ref) {
+final studentRemoteDataSourceProvider =
+    Provider<StudentRemoteDataSource>((ref) {
   final authState = ref.watch(authControllerProvider);
   final role = authState.user?.role;
-  final customAccessToken =
-      role == AuthRole.parent || role == AuthRole.student
-          ? authState.session?.accessToken
-          : null;
+  final customAccessToken = role == AuthRole.parent || role == AuthRole.student
+      ? authState.session?.accessToken
+      : null;
 
   return SupabaseStudentRemoteDataSource(
     ref.watch(supabaseClientProvider),
@@ -100,8 +101,8 @@ final academicYearsProvider = FutureProvider<List<AcademicYear>>((ref) async {
   );
 });
 
-final classesProvider =
-    FutureProvider.family<List<SchoolClass>, String>((ref, academicYearId) async {
+final classesProvider = FutureProvider.family<List<SchoolClass>, String>(
+    (ref, academicYearId) async {
   final result = await ref.watch(classesUseCaseProvider)(academicYearId);
   return result.when(
     success: (value) => value,
@@ -124,10 +125,10 @@ final studentListProvider =
   request,
 ) async {
   final result = await ref.watch(studentsBySectionUseCaseProvider)(
-        academicYearId: request.academicYearId,
-        classId: request.classId,
-        sectionId: request.sectionId,
-      );
+    academicYearId: request.academicYearId,
+    classId: request.classId,
+    sectionId: request.sectionId,
+  );
   return result.when(
     success: (value) => value,
     failure: (failure) => throw failure.message,
@@ -164,9 +165,9 @@ final feeStructureProvider =
   request,
 ) async {
   final result = await ref.watch(studentFeeStructureUseCaseProvider)(
-        academicYearId: request.academicYearId,
-        classId: request.classId,
-      );
+    academicYearId: request.academicYearId,
+    classId: request.classId,
+  );
   return result.when(
     success: (value) => value,
     failure: (failure) => throw failure.message,
@@ -189,8 +190,8 @@ final saveStudentControllerProvider =
   return SaveStudentController(ref.watch(saveStudentUseCaseProvider));
 });
 
-final archiveStudentControllerProvider =
-    StateNotifierProvider.autoDispose<ArchiveStudentController, AsyncValue<void>>((
+final archiveStudentControllerProvider = StateNotifierProvider.autoDispose<
+    ArchiveStudentController, AsyncValue<void>>((
   ref,
 ) {
   return ArchiveStudentController(ref.watch(archiveStudentUseCaseProvider));

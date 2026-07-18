@@ -1,4 +1,4 @@
-final class DashboardNotification {
+class DashboardNotification {
   const DashboardNotification({
     required this.id,
     required this.title,

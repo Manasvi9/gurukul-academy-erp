@@ -1,13 +1,26 @@
 import '../../domain/entities/auth_session.dart';
 import 'auth_user_model.dart';
 
-final class AuthSessionModel extends AuthSession {
+/// Serializable data representation of an authenticated session.
+///
+/// It implements the final domain contract rather than inheriting from it.
+final class AuthSessionModel {
   const AuthSessionModel({
-    required AuthUserModel super.user,
-    required super.accessToken,
-    required super.expiresAt,
-    super.refreshToken,
+    required this.user,
+    required this.accessToken,
+    required this.expiresAt,
+    this.refreshToken,
   });
+
+  final AuthUserModel user;
+
+  final String accessToken;
+
+  final String? refreshToken;
+
+  final DateTime expiresAt;
+
+  bool get isExpired => DateTime.now().isAfter(expiresAt);
 
   factory AuthSessionModel.fromJson(Map<String, Object?> json) {
     return AuthSessionModel(
@@ -27,9 +40,18 @@ final class AuthSessionModel extends AuthSession {
     );
   }
 
+  AuthSession toEntity() {
+    return AuthSession(
+      user: user.toEntity(),
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+      expiresAt: expiresAt,
+    );
+  }
+
   Map<String, Object?> toJson() {
     return {
-      'user': (user as AuthUserModel).toJson(),
+      'user': user.toJson(),
       'access_token': accessToken,
       'refresh_token': refreshToken,
       'expires_at': expiresAt.toIso8601String(),

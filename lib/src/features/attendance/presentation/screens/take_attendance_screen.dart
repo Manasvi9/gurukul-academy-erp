@@ -26,7 +26,8 @@ final class TakeAttendanceScreen extends ConsumerStatefulWidget {
       _TakeAttendanceScreenState();
 }
 
-final class _TakeAttendanceScreenState extends ConsumerState<TakeAttendanceScreen> {
+final class _TakeAttendanceScreenState
+    extends ConsumerState<TakeAttendanceScreen> {
   final _records = <String, AttendanceRecord>{};
 
   @override
@@ -106,13 +107,14 @@ final class _TakeAttendanceScreenState extends ConsumerState<TakeAttendanceScree
   }
 
   Future<void> _save() async {
-    final saved = await ref.read(attendanceSaveControllerProvider.notifier).save(
-          academicYearId: widget.academicYearId,
-          classId: widget.classId,
-          sectionId: widget.sectionId,
-          date: DateTime.now(),
-          records: _records.values.toList(),
-        );
+    final saved =
+        await ref.read(attendanceSaveControllerProvider.notifier).save(
+              academicYearId: widget.academicYearId,
+              classId: widget.classId,
+              sectionId: widget.sectionId,
+              date: DateTime.now(),
+              records: _records.values.toList(),
+            );
     if (!mounted || !saved) {
       return;
     }

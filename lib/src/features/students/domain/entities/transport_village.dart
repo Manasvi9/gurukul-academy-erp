@@ -1,4 +1,4 @@
-final class TransportVillage {
+class TransportVillage {
   const TransportVillage({
     required this.id,
     required this.name,

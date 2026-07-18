@@ -5,6 +5,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/widgets/app_async_view.dart';
 import '../../../../shared/widgets/responsive_page.dart';
 import '../../domain/entities/fee_payment_form_data.dart';
+import '../../domain/entities/student_fee_ledger.dart';
 import '../providers/fee_providers.dart';
 
 final class FeeStudentLedgerScreen extends ConsumerWidget {
@@ -47,8 +48,12 @@ final class FeeStudentLedgerScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: AppSpacing.sm),
                       Text('Class Fee: ${value.classFee.toStringAsFixed(0)}'),
-                      Text('Transport: ${value.transportFee.toStringAsFixed(0)}'),
-                      Text('Discount: ${value.scholarshipDiscount.toStringAsFixed(0)}'),
+                      Text(
+                        'Transport: ${value.transportFee.toStringAsFixed(0)}',
+                      ),
+                      Text(
+                        'Discount: ${value.scholarshipDiscount.toStringAsFixed(0)}',
+                      ),
                       Text('Paid: ${value.paidAmount.toStringAsFixed(0)}'),
                       Text('Due: ${value.outstandingDue.toStringAsFixed(0)}'),
                       const SizedBox(height: AppSpacing.md),
@@ -72,7 +77,10 @@ final class FeeStudentLedgerScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: AppSpacing.lg),
-            Text('Payment History', style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              'Payment History',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             AppAsyncView(
               value: payments,
               data: (items) => Column(
@@ -94,7 +102,7 @@ final class FeeStudentLedgerScreen extends ConsumerWidget {
   Future<void> _recordPayment(
     BuildContext context,
     WidgetRef ref,
-    dynamic ledger,
+    StudentFeeLedger ledger,
   ) async {
     final amountController = TextEditingController(
       text: ledger.outstandingDue.toStringAsFixed(0),
@@ -154,7 +162,7 @@ final class FeeStudentLedgerScreen extends ConsumerWidget {
   Future<void> _markComplete(
     BuildContext context,
     WidgetRef ref,
-    dynamic ledger,
+    StudentFeeLedger ledger,
   ) async {
     await ref.read(feePaymentControllerProvider.notifier).markComplete(
           studentId: ledger.studentId,

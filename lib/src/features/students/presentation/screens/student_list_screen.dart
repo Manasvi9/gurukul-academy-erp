@@ -50,7 +50,8 @@ final class StudentListScreen extends ConsumerWidget {
               }
               return StudentSummaryTable(
                 students: items,
-                onStudentTap: (student) => context.go('/students/${student.id}'),
+                onStudentTap: (student) =>
+                    context.go('/students/${student.id}'),
               );
             },
           ),
