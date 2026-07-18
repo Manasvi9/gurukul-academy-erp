@@ -23,10 +23,19 @@ enum AppRoute {
   feeSearch('/fees/search'),
   feeStudentLedger('/fees/students/:studentId'),
   homework('/homework'),
+  timetable('/timetable'),
   exams('/exams'),
   addExam('/exams/add'),
   editExam('/exams/:examId/edit'),
   examSubjects('/exams/:examId/subjects'),
+  examResults('/exams/:examId/results'),
+  examReportCard('/exams/:examId/results/:studentId'),
+  transportDashboard('/transport'),
+  vehicles('/transport/vehicles'),
+  routes('/transport/routes'),
+  certificates('/certificates'),
+  addCertificate('/certificates/add'),
+  certificateDetails('/certificates/:certificateId'),
   notFound('/not-found');
 
   const AppRoute(this.path);

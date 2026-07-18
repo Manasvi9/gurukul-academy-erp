@@ -1,0 +1,12 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../app/bootstrap/app_bootstrap.dart';
+import '../../authentication/domain/entities/auth_role.dart';
+import '../../authentication/presentation/providers/auth_providers.dart';
+import '../data/timetable_repository_impl.dart';
+import '../domain/entities/timetable_entry.dart';
+import '../domain/repositories/timetable_repository.dart';
+final timetableRepositoryProvider = Provider<TimetableRepository>((ref) { final state = ref.watch(authControllerProvider); final custom = state.user?.role == AuthRole.parent || state.user?.role == AuthRole.student ? state.session?.accessToken : null; return SupabaseTimetableRepository(ref.watch(supabaseClientProvider), customAccessToken: custom); });
+final timetableClassFilterProvider = StateProvider<String?>((ref) => null);
+final timetableSectionFilterProvider = StateProvider<String?>((ref) => null);
+final timetableEntriesProvider = FutureProvider<List<TimetableEntry>>((ref) => ref.watch(timetableRepositoryProvider).list(classId: ref.watch(timetableClassFilterProvider), sectionId: ref.watch(timetableSectionFilterProvider)));
+final timetableTeachersProvider = FutureProvider<List<TimetableTeacher>>((ref) => ref.watch(timetableRepositoryProvider).teachers());

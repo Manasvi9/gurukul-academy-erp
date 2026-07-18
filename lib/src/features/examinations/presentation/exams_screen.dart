@@ -209,7 +209,10 @@ final class ExamsScreen extends ConsumerWidget {
                                         padding: EdgeInsets.zero,
                                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                       ),
-                                      onPressed: () => context.push('/exams/${exam.id}/subjects'),
+                                      onPressed: () => context.push(
+                                        '/exams/${exam.id}/subjects',
+                                        extra: exam,
+                                      ),
                                     ),
                                   ],
                                 ),

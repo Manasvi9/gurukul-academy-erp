@@ -4,11 +4,12 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/widgets/app_async_view.dart';
-import '../../../../shared/widgets/app_empty_view.dart';
 import '../../../../shared/widgets/responsive_page.dart';
 import '../../../authentication/presentation/providers/auth_providers.dart';
 import '../providers/dashboard_providers.dart';
-import '../widgets/dashboard_metric_card.dart';
+import '../widgets/dashboard_analytics_grid.dart';
+import '../widgets/dashboard_notifications_section.dart';
+import '../widgets/dashboard_sections.dart';
 
 final class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -46,49 +47,21 @@ final class DashboardScreen extends ConsumerWidget {
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                   const SizedBox(height: AppSpacing.lg),
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      final columns = constraints.maxWidth >= 900
-                          ? 3
-                          : constraints.maxWidth >= 620
-                              ? 2
-                              : 1;
-                      return GridView.count(
-                        crossAxisCount: columns,
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        mainAxisSpacing: AppSpacing.sm,
-                        crossAxisSpacing: AppSpacing.sm,
-                        childAspectRatio: columns == 1 ? 4.2 : 2.6,
-                        children: dashboard.cards.map((card) {
-                          return DashboardMetricCard(
-                            card: card,
-                            onTap: card.routePath == null
-                                ? null
-                                : () => context.go(card.routePath!),
-                          );
-                        }).toList(),
-                      );
-                    },
+                  DashboardAnalyticsGrid(
+                    cards: dashboard.cards,
+                    onCardTap: (card) => context.go(card.routePath!),
                   ),
+                  if (dashboard.sections.isNotEmpty) ...[
+                    const SizedBox(height: AppSpacing.lg),
+                    DashboardSections(sections: dashboard.sections),
+                  ],
                   const SizedBox(height: AppSpacing.lg),
-                  Text(
-                    'Recent Notifications',
-                    style: Theme.of(context).textTheme.titleMedium,
+                  DashboardNotificationsSection(
+                    title: dashboard.role == 'teacher'
+                        ? 'Recent Notices'
+                        : 'Recent Notifications',
+                    notifications: dashboard.notifications,
                   ),
-                  const SizedBox(height: AppSpacing.sm),
-                  if (dashboard.notifications.isEmpty)
-                    const AppEmptyView(
-                      title: 'No notifications',
-                      message: 'Recent notifications will appear here.',
-                    )
-                  else
-                    ...dashboard.notifications.map(
-                      (notification) => ListTile(
-                        title: Text(notification.title),
-                        subtitle: Text(notification.message),
-                      ),
-                    ),
                 ],
               ),
             );

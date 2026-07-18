@@ -46,6 +46,8 @@ class Exam {
     this.description,
     required this.status,
     this.isArchived = false,
+    this.publishedAt,
+    this.publishedBy,
   });
 
   final String id;
@@ -59,6 +61,8 @@ class Exam {
   final String? description;
   final ExamStatus status;
   final bool isArchived;
+  final DateTime? publishedAt;
+  final String? publishedBy;
 
   Exam copyWith({
     String? id,
@@ -72,6 +76,8 @@ class Exam {
     String? description,
     ExamStatus? status,
     bool? isArchived,
+    DateTime? publishedAt,
+    String? publishedBy,
   }) {
     return Exam(
       id: id ?? this.id,
@@ -85,6 +91,8 @@ class Exam {
       description: description ?? this.description,
       status: status ?? this.status,
       isArchived: isArchived ?? this.isArchived,
+      publishedAt: publishedAt ?? this.publishedAt,
+      publishedBy: publishedBy ?? this.publishedBy,
     );
   }
 }

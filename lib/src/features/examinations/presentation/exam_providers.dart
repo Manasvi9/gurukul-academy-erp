@@ -29,6 +29,20 @@ final examArchiveProvider = Provider<Future<void> Function(String)>((ref) {
   };
 });
 
+final examPublishProvider = Provider<Future<void> Function(String)>((ref) {
+  return (examId) async {
+    await ref.read(examRepositoryProvider).publish(examId);
+    ref.invalidate(examsProvider);
+  };
+});
+
+final examUnpublishProvider = Provider<Future<void> Function(String)>((ref) {
+  return (examId) async {
+    await ref.read(examRepositoryProvider).unpublish(examId);
+    ref.invalidate(examsProvider);
+  };
+});
+
 final examCreateProvider =
     Provider<Future<void> Function(Map<String, Object?>)>((ref) {
   return (values) async {
@@ -80,6 +94,10 @@ final examSubjectDeleteProvider =
   };
 });
 
+final examMarksProvider = FutureProvider.family<List<ExamMark>, String>((ref, examSubjectId) {
+  return ref.watch(examRepositoryProvider).listMarks(examSubjectId);
+});
+
 final examMarksSaveProvider =
     Provider<Future<void> Function(String, List<ExamMark>, bool)>((ref) {
   return (examSubjectId, marks, isFinal) async {
@@ -88,6 +106,6 @@ final examMarksSaveProvider =
           marks: marks,
           isFinal: isFinal,
         );
-    ref.invalidate(examsProvider);
+    ref.invalidate(examMarksProvider(examSubjectId));
   };
 });

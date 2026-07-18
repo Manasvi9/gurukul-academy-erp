@@ -9,14 +9,24 @@ import '../../features/authentication/presentation/providers/auth_providers.dart
 import '../../features/authentication/presentation/providers/auth_state.dart';
 import '../../features/authentication/presentation/screens/change_password_screen.dart';
 import '../../features/authentication/presentation/screens/login_screen.dart';
+import '../../features/certificates/presentation/screens/certificate_details_screen.dart';
+import '../../features/certificates/presentation/screens/certificates_list_screen.dart';
+import '../../features/certificates/presentation/screens/generate_certificate_screen.dart';
 import '../../features/dashboard/presentation/screens/dashboard_screen.dart';
+import '../../features/examinations/domain/entities/exam.dart';
+import '../../features/examinations/domain/entities/exam_subject.dart';
+import '../../features/examinations/domain/entities/student_result.dart';
 import '../../features/examinations/presentation/exam_form_screen.dart';
 import '../../features/examinations/presentation/exam_subjects_screen.dart';
 import '../../features/examinations/presentation/exams_screen.dart';
+import '../../features/examinations/presentation/marks_entry_screen.dart';
+import '../../features/examinations/presentation/report_card_screen.dart';
+import '../../features/examinations/presentation/result_processing_screen.dart';
 import '../../features/fees/presentation/screens/fee_dashboard_screen.dart';
 import '../../features/fees/presentation/screens/fee_student_ledger_screen.dart';
 import '../../features/fees/presentation/screens/fee_student_search_screen.dart';
 import '../../features/homework/presentation/screens/homework_screen.dart';
+import '../../features/students/domain/entities/student_summary.dart';
 import '../../features/students/presentation/screens/student_class_list_screen.dart';
 import '../../features/students/presentation/screens/student_details_screen.dart';
 import '../../features/students/presentation/screens/student_form_screen.dart';
@@ -25,6 +35,10 @@ import '../../features/students/presentation/screens/student_search_screen.dart'
 import '../../features/students/presentation/screens/student_section_list_screen.dart';
 import '../../features/students/presentation/screens/students_home_screen.dart';
 import '../../features/teachers/presentation/screens/teachers_screen.dart';
+import '../../features/timetable/presentation/screens/timetable_screen.dart';
+import '../../features/transport/presentation/screens/route_management_screen.dart';
+import '../../features/transport/presentation/screens/transport_dashboard_screen.dart';
+import '../../features/transport/presentation/screens/vehicle_management_screen.dart';
 import '../../shared/screens/not_found_screen.dart';
 import 'app_routes.dart';
 
@@ -193,6 +207,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const HomeworkScreen(),
       ),
       GoRoute(
+        path: AppRoute.timetable.path,
+        name: AppRoute.timetable.name,
+        builder: (context, state) => const TimetableScreen(),
+      ),
+      GoRoute(
         path: AppRoute.exams.path,
         name: AppRoute.exams.name,
         builder: (context, state) => const ExamsScreen(),
@@ -214,7 +233,71 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRoute.examSubjects.name,
         builder: (context, state) => ExamSubjectsScreen(
           examId: state.pathParameters['examId']!,
+          exam: state.extra as Exam,
         ),
+      ),
+      GoRoute(
+        path: AppRoute.examResults.path,
+        name: AppRoute.examResults.name,
+        builder: (context, state) => ResultProcessingScreen(
+          exam: state.extra as Exam,
+        ),
+      ),
+      GoRoute(
+        path: AppRoute.examReportCard.path,
+        name: AppRoute.examReportCard.name,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return ReportCardScreen(
+            exam: extra['exam'] as Exam,
+            student: extra['student'] as StudentSummary,
+            result: extra['result'] as StudentResult,
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoute.transportDashboard.path,
+        name: AppRoute.transportDashboard.name,
+        builder: (context, state) => const TransportDashboardScreen(),
+      ),
+      GoRoute(
+        path: AppRoute.vehicles.path,
+        name: AppRoute.vehicles.name,
+        builder: (context, state) => const VehicleManagementScreen(),
+      ),
+      GoRoute(
+        path: AppRoute.routes.path,
+        name: AppRoute.routes.name,
+        builder: (context, state) => const RouteManagementScreen(),
+      ),
+      GoRoute(
+        path: AppRoute.certificates.path,
+        name: AppRoute.certificates.name,
+        builder: (context, state) => const CertificatesListScreen(),
+      ),
+      GoRoute(
+        path: AppRoute.addCertificate.path,
+        name: AppRoute.addCertificate.name,
+        builder: (context, state) => const GenerateCertificateScreen(),
+      ),
+      GoRoute(
+        path: AppRoute.certificateDetails.path,
+        name: AppRoute.certificateDetails.name,
+        builder: (context, state) => CertificateDetailsScreen(
+          certificateId: state.pathParameters['certificateId'] ?? '',
+        ),
+      ),
+      GoRoute(
+        path: '/exams/:examId/subjects/:subjectId/marks',
+        name: 'marksEntry',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return MarksEntryScreen(
+            examSubjectId: state.pathParameters['subjectId']!,
+            exam: extra['exam'] as Exam,
+            subject: extra['subject'] as ExamSubject,
+          );
+        },
       ),
       GoRoute(
         path: AppRoute.studentDetails.path,

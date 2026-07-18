@@ -13,6 +13,8 @@ final class ExamModel extends Exam {
     super.description,
     required super.status,
     super.isArchived,
+    super.publishedAt,
+    super.publishedBy,
   });
 
   factory ExamModel.fromJson(Map<String, Object?> json) => ExamModel(
@@ -29,6 +31,10 @@ final class ExamModel extends Exam {
         description: json['description'] as String?,
         status: ExamStatus.fromValue(json['status'] as String),
         isArchived: json['is_archived'] as bool? ?? false,
+        publishedAt: json['published_at'] != null
+            ? DateTime.parse(json['published_at'] as String)
+            : null,
+        publishedBy: json['published_by'] as String?,
       );
 
   Map<String, Object?> toJson() => {
@@ -42,5 +48,7 @@ final class ExamModel extends Exam {
         'description': description,
         'status': status.value,
         'is_archived': isArchived,
+        'published_at': publishedAt?.toIso8601String(),
+        'published_by': publishedBy,
       };
 }

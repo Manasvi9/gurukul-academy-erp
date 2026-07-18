@@ -7,12 +7,14 @@ import '../../../shared/widgets/app_async_view.dart';
 import '../../../shared/widgets/responsive_page.dart';
 import '../../academic_structure/domain/entities/academic_subject.dart';
 import '../../academic_structure/presentation/providers/academic_structure_providers.dart';
+import '../domain/entities/exam.dart';
 import '../domain/entities/exam_subject.dart';
 import 'exam_providers.dart';
 
 final class ExamSubjectsScreen extends ConsumerStatefulWidget {
-  const ExamSubjectsScreen({required this.examId, super.key});
+  const ExamSubjectsScreen({required this.examId, required this.exam, super.key});
   final String examId;
+  final Exam exam;
 
   @override
   ConsumerState<ExamSubjectsScreen> createState() => _ExamSubjectsScreenState();
@@ -23,69 +25,117 @@ final class _ExamSubjectsScreenState extends ConsumerState<ExamSubjectsScreen> {
   Widget build(BuildContext context) {
     final examSubjectsAsync = ref.watch(examSubjectsProvider(widget.examId));
     final academicSubjectsAsync = ref.watch(academicSubjectsProvider);
+    final isPublished = widget.exam.status == ExamStatus.published;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Exam Subjects')),
-      body: ResponsivePage(
-        maxWidth: 800,
-        child: AppAsyncView<List<ExamSubject>>(
-          value: examSubjectsAsync,
-          data: (subjects) {
-            return AppAsyncView<List<AcademicSubject>>(
-              value: academicSubjectsAsync,
-              data: (allSubjects) {
-                if (subjects.isEmpty) {
-                  return const Center(child: Text('No subjects added yet.'));
-                }
-                return ListView.builder(
-                  itemCount: subjects.length,
-                  itemBuilder: (context, index) {
-                    final subject = subjects[index];
-                    final academicSubject = allSubjects.firstWhere(
-                      (s) => s.id == subject.subjectId,
-                      orElse: () => AcademicSubject(
-                        id: subject.subjectId,
-                        name: 'Unknown',
-                        code: null,
-                        classIds: [],
-                        displayOrder: 0,
-                        isActive: true,
-                      ),
-                    );
-                    return Card(
-                      margin: const EdgeInsets.all(AppSpacing.sm),
-                      child: ListTile(
-                        title: Text(academicSubject.name),
-                        subtitle: Text(
-                          'Max: ${subject.maximumMarks}, Pass: ${subject.passingMarks}',
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit),
-                              onPressed: () =>
-                                  _showSubjectDialog(subject: subject),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.delete),
-                              onPressed: () => _deleteSubject(subject.id),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
-            );
-          },
-        ),
+      appBar: AppBar(
+        title: const Text('Exam Subjects'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.assessment),
+            onPressed: () => context.pushNamed(
+              'examResults',
+              extra: widget.exam,
+            ),
+          ),
+        ],
       ),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add),
-        onPressed: () => _showSubjectDialog(),
+      body: Column(
+        children: [
+          if (isPublished)
+            Container(
+              color: Colors.amber.withValues(alpha: 0.2),
+              padding: const EdgeInsets.all(AppSpacing.sm),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.lock, color: Colors.amber),
+                  SizedBox(width: AppSpacing.sm),
+                  Text(
+                    'Results Published - Editing Locked',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+          Expanded(
+            child: ResponsivePage(
+              maxWidth: 800,
+              child: AppAsyncView<List<ExamSubject>>(
+                value: examSubjectsAsync,
+                data: (subjects) {
+                  return AppAsyncView<List<AcademicSubject>>(
+                    value: academicSubjectsAsync,
+                    data: (allSubjects) {
+                      if (subjects.isEmpty) {
+                        return const Center(child: Text('No subjects added yet.'));
+                      }
+                      return ListView.builder(
+                        itemCount: subjects.length,
+                        itemBuilder: (context, index) {
+                          final subject = subjects[index];
+                          final academicSubject = allSubjects.firstWhere(
+                            (s) => s.id == subject.subjectId,
+                            orElse: () => AcademicSubject(
+                              id: subject.subjectId,
+                              name: 'Unknown',
+                              code: null,
+                              classIds: [],
+                              displayOrder: 0,
+                              isActive: true,
+                            ),
+                          );
+                          return Card(
+                            margin: const EdgeInsets.all(AppSpacing.sm),
+                            child: ListTile(
+                              title: Text(academicSubject.name),
+                              subtitle: Text(
+                                'Max: ${subject.maximumMarks}, Pass: ${subject.passingMarks}',
+                              ),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (!isPublished) ...[
+                                    IconButton(
+                                      icon: const Icon(Icons.edit),
+                                      onPressed: () =>
+                                          _showSubjectDialog(subject: subject),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete),
+                                      onPressed: () => _deleteSubject(subject.id),
+                                    ),
+                                  ],
+                                  IconButton(
+                                    icon: const Icon(Icons.edit_note),
+                                    onPressed: () => context.push(
+                                      '/exams/${widget.examId}/subjects/${subject.id}/marks',
+                                      extra: {
+                                        'exam': widget.exam,
+                                        'subject': subject,
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
       ),
+      floatingActionButton: isPublished
+          ? null
+          : FloatingActionButton(
+              child: const Icon(Icons.add),
+              onPressed: () => _showSubjectDialog(),
+            ),
     );
   }
 

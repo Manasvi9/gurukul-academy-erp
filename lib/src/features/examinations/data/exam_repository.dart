@@ -4,6 +4,7 @@ import '../domain/entities/exam.dart';
 import '../domain/entities/exam_mark.dart';
 import '../domain/entities/exam_subject.dart';
 import '../domain/repositories/exam_repository.dart';
+import 'models/exam_mark_model.dart';
 import 'models/exam_model.dart';
 import 'models/exam_subject_model.dart';
 
@@ -48,6 +49,20 @@ final class SupabaseExamRepository implements ExamRepository {
       .update({'is_archived': true, 'status': 'archived'}).eq('id', id);
 
   @override
+  Future<void> publish(String id) => _client.from('exams').update({
+        'status': 'published',
+        'published_at': DateTime.now().toIso8601String(),
+        'published_by': _client.auth.currentUser!.id,
+      }).eq('id', id);
+
+  @override
+  Future<void> unpublish(String id) => _client.from('exams').update({
+        'status': 'draft',
+        'published_at': null,
+        'published_by': null,
+      }).eq('id', id);
+
+  @override
   Future<List<ExamSubject>> listSubjects(String examId) async {
     final rows = await _client
         .from('exam_subjects')
@@ -56,6 +71,18 @@ final class SupabaseExamRepository implements ExamRepository {
     return rows
         .cast<Map<String, Object?>>()
         .map(ExamSubjectModel.fromJson)
+        .toList();
+  }
+
+  @override
+  Future<List<ExamMark>> listMarks(String examSubjectId) async {
+    final rows = await _client
+        .from('exam_marks')
+        .select()
+        .eq('exam_subject_id', examSubjectId);
+    return rows
+        .cast<Map<String, Object?>>()
+        .map(ExamMarkModel.fromJson)
         .toList();
   }
 
