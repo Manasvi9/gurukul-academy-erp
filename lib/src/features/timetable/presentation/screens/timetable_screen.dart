@@ -1,7 +1,275 @@
-import 'package:flutter/material.dart'; import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/theme/app_spacing.dart'; import '../../../../shared/widgets/app_async_view.dart'; import '../../../../shared/widgets/app_empty_view.dart'; import '../../../../shared/widgets/responsive_page.dart';
-import '../../../academic_structure/presentation/providers/academic_structure_providers.dart'; import '../../../authentication/domain/entities/auth_role.dart'; import '../../../authentication/presentation/providers/auth_providers.dart';
-import '../domain/entities/timetable_entry.dart'; import '../timetable_providers.dart';
-final class TimetableScreen extends ConsumerWidget { const TimetableScreen({super.key}); @override Widget build(BuildContext context, WidgetRef ref) { final entries = ref.watch(timetableEntriesProvider); final role = ref.watch(authControllerProvider).user?.role; final canManage = role == AuthRole.systemAdmin || role == AuthRole.director || role == AuthRole.principal; final classes = ref.watch(activeAcademicClassesProvider); return Scaffold(appBar: AppBar(title: const Text('Timetable')), floatingActionButton: canManage ? FloatingActionButton.extended(onPressed: () => _form(context, ref), icon: const Icon(Icons.add), label: const Text('Add period')) : null, body: ResponsivePage(maxWidth: 1000, child: Padding(padding: const EdgeInsets.all(AppSpacing.md), child: Column(children: [if (canManage) classes.when(data: (items) => DropdownButtonFormField<String>(initialValue: ref.watch(timetableClassFilterProvider), decoration: const InputDecoration(labelText: 'Filter class'), items: [const DropdownMenuItem(value: null, child: Text('All classes')), ...items.map((item) => DropdownMenuItem(value: item.id, child: Text(item.name)))], onChanged: (value) { ref.read(timetableClassFilterProvider.notifier).state = value; ref.read(timetableSectionFilterProvider.notifier).state = null; }), loading: () => const LinearProgressIndicator(), error: (_, __) => const SizedBox()), const SizedBox(height: AppSpacing.md), Expanded(child: AppAsyncView(value: entries, data: (items) => items.isEmpty ? const AppEmptyView(title: 'No timetable entries', message: 'No periods match the current view.') : ListView(children: items.map((entry) => Card(child: ListTile(title: Text('${entry.dayLabel} • ${entry.startTime}–${entry.endTime}'), subtitle: Text('${entry.subjectName} • ${entry.teacherName}\n${entry.className} ${entry.sectionName}${entry.room == null ? '' : ' • Room ${entry.room}'}'), isThreeLine: true, trailing: canManage ? PopupMenuButton<String>(onSelected: (action) => action == 'delete' ? _delete(ref, entry.id) : _form(context, ref, entry), itemBuilder: (_) => const [PopupMenuItem(value: 'edit', child: Text('Edit')), PopupMenuItem(value: 'delete', child: Text('Delete'))]) : null)).toList())))])))); }
-Future<void> _delete(WidgetRef ref, String id) async { await ref.read(timetableRepositoryProvider).delete(id); ref.invalidate(timetableEntriesProvider); }
-Future<void> _form(BuildContext context, WidgetRef ref, [TimetableEntry? entry]) async { final classes = await ref.read(activeAcademicClassesProvider.future); final subjects = await ref.read(academicSubjectsProvider.future); final teachers = await ref.read(timetableTeachersProvider.future); String? classId = entry?.classId; String? sectionId = entry?.sectionId; String? subjectId = entry?.subjectId; String? teacherId = entry?.teacherId; var day = entry?.dayOfWeek ?? 1; final start = TextEditingController(text: entry?.startTime ?? '09:00'); final end = TextEditingController(text: entry?.endTime ?? '09:45'); final room = TextEditingController(text: entry?.room ?? ''); await showDialog<void>(context: context, builder: (dialogContext) => StatefulBuilder(builder: (context, setState) => AlertDialog(title: Text(entry == null ? 'Add timetable period' : 'Edit timetable period'), content: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, children: [DropdownButtonFormField(value: classId, decoration: const InputDecoration(labelText: 'Class'), items: classes.map((item) => DropdownMenuItem(value: item.id, child: Text(item.name))).toList(), onChanged: (value) => setState(() { classId = value; sectionId = null; })), if (classId != null) ref.watch(academicSectionsProvider).when(data: (sections) => DropdownButtonFormField(value: sectionId, decoration: const InputDecoration(labelText: 'Section'), items: sections.where((s) => s.classId == classId).map((item) => DropdownMenuItem(value: item.id, child: Text(item.name))).toList(), onChanged: (value) => setState(() => sectionId = value)), loading: () => const LinearProgressIndicator(), error: (_, __) => const SizedBox()), DropdownButtonFormField(value: subjectId, decoration: const InputDecoration(labelText: 'Subject'), items: subjects.where((s) => classId == null || s.classIds.contains(classId)).map((item) => DropdownMenuItem(value: item.id, child: Text(item.name))).toList(), onChanged: (value) => setState(() => subjectId = value)), DropdownButtonFormField(value: teacherId, decoration: const InputDecoration(labelText: 'Teacher'), items: teachers.map((item) => DropdownMenuItem(value: item.id, child: Text(item.name))).toList(), onChanged: (value) => setState(() => teacherId = value)), DropdownButtonFormField<int>(initialValue: day, decoration: const InputDecoration(labelText: 'Day'), items: List.generate(7, (i) => DropdownMenuItem(value: i + 1, child: Text(const ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][i]))), onChanged: (value) => setState(() => day = value!)), TextField(controller: start, decoration: const InputDecoration(labelText: 'Start time (HH:MM)')), TextField(controller: end, decoration: const InputDecoration(labelText: 'End time (HH:MM)')), TextField(controller: room, decoration: const InputDecoration(labelText: 'Room (optional)'))])), actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')), FilledButton(onPressed: classId == null || sectionId == null || subjectId == null || teacherId == null ? null : () async { await ref.read(timetableRepositoryProvider).save(TimetableEntry(id: entry?.id ?? '', classId: classId!, className: '', sectionId: sectionId!, sectionName: '', subjectId: subjectId!, subjectName: '', teacherId: teacherId!, teacherName: '', dayOfWeek: day, startTime: start.text.trim(), endTime: end.text.trim(), room: room.text.trim().isEmpty ? null : room.text.trim())); ref.invalidate(timetableEntriesProvider); if (context.mounted) Navigator.pop(context); }, child: const Text('Save'))])); }
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gurukul_academy_erp/src/core/theme/app_spacing.dart';
+import 'package:gurukul_academy_erp/src/features/academic_structure/presentation/providers/academic_structure_providers.dart';
+import 'package:gurukul_academy_erp/src/features/authentication/domain/entities/auth_role.dart';
+import 'package:gurukul_academy_erp/src/features/authentication/presentation/providers/auth_providers.dart';
+import 'package:gurukul_academy_erp/src/features/timetable/domain/entities/timetable_entry.dart';
+import 'package:gurukul_academy_erp/src/features/timetable/presentation/timetable_providers.dart';
+import 'package:gurukul_academy_erp/src/features/timetable/presentation/widgets/timetable_entry_form.dart';
+import 'package:gurukul_academy_erp/src/shared/widgets/app_async_view.dart';
+import 'package:gurukul_academy_erp/src/shared/widgets/app_empty_view.dart';
+import 'package:gurukul_academy_erp/src/shared/widgets/responsive_page.dart';
+
+class TimetableScreen extends ConsumerWidget {
+  const TimetableScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final entries = ref.watch(timetableEntriesProvider);
+    final authState = ref.watch(authControllerProvider);
+    final role = authState.user?.role;
+    final canManage = role == AuthRole.systemAdmin ||
+        role == AuthRole.director ||
+        role == AuthRole.principal;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Timetable'),
+      ),
+      floatingActionButton: canManage
+          ? FloatingActionButton.extended(
+              onPressed: () => _showForm(context),
+              icon: const Icon(Icons.add),
+              label: const Text('Add Period'),
+            )
+          : null,
+      body: ResponsivePage(
+        maxWidth: 1000,
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          child: Column(
+            children: [
+              if (canManage || role == AuthRole.teacher)
+                _buildFilters(context, ref, canManage),
+              const SizedBox(height: AppSpacing.md),
+              Expanded(
+                child: AppAsyncView(
+                  value: entries,
+                  data: (items) => items.isEmpty
+                      ? const AppEmptyView(
+                          title: 'No timetable entries',
+                          message: 'No periods match the current view.',
+                        )
+                      : ListView.builder(
+                          itemCount: items.length,
+                          itemBuilder: (context, index) {
+                            final entry = items[index];
+                            return _TimetableCard(
+                              entry: entry,
+                              canManage: canManage,
+                            );
+                          },
+                        ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFilters(
+    BuildContext context,
+    WidgetRef ref,
+    bool canManage,
+  ) {
+    final classes = ref.watch(activeAcademicClassesProvider);
+    final teachers = ref.watch(timetableTeachersProvider);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.sm),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                if (canManage) ...[
+                  Expanded(
+                    child: classes.when(
+                      data: (items) => DropdownButtonFormField<String?>(
+                        initialValue: ref.watch(timetableClassFilterProvider),
+                        decoration:
+                            const InputDecoration(labelText: 'Filter Class'),
+                        items: [
+                          const DropdownMenuItem(
+                            value: null,
+                            child: Text('All Classes'),
+                          ),
+                          ...items.map((item) => DropdownMenuItem(
+                                value: item.id,
+                                child: Text(item.name),
+                              ),),
+                        ],
+                        onChanged: (value) {
+                          ref.read(timetableClassFilterProvider.notifier).set(value);
+                          ref.read(timetableSectionFilterProvider.notifier).set(null);
+                        },
+                      ),
+                      loading: () => const LinearProgressIndicator(),
+                      error: (_, __) => const SizedBox(),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: ref.watch(academicSectionsProvider).when(
+                          data: (items) {
+                            final classId =
+                                ref.watch(timetableClassFilterProvider);
+                            final filtered = classId == null
+                                ? <DropdownMenuItem<String?>>[]
+                                : items
+                                    .where((s) => s.classId == classId)
+                                    .map((item) => DropdownMenuItem<String?>(
+                                          value: item.id,
+                                          child: Text(item.name),
+                                        ),)
+                                    .toList();
+                            return DropdownButtonFormField<String?>(
+                              initialValue: ref.watch(timetableSectionFilterProvider),
+                              decoration: const InputDecoration(
+                                  labelText: 'Filter Section',),
+                              items: [
+                                const DropdownMenuItem(
+                                  value: null,
+                                  child: Text('All Sections'),
+                                ),
+                                ...filtered,
+                              ],
+                              onChanged: classId == null
+                                  ? null
+                                  : (value) => ref
+                                      .read(timetableSectionFilterProvider
+                                          .notifier,)
+                                      .set(value),
+                            );
+                          },
+                          loading: () => const LinearProgressIndicator(),
+                          error: (_, __) => const SizedBox(),
+                        ),
+                  ),
+                ],
+                if (canManage) const SizedBox(width: AppSpacing.sm),
+                if (canManage)
+                  Expanded(
+                    child: teachers.when(
+                      data: (items) => DropdownButtonFormField<String?>(
+                        initialValue: ref.watch(timetableTeacherFilterProvider),
+                        decoration:
+                            const InputDecoration(labelText: 'Filter Teacher'),
+                        items: [
+                          const DropdownMenuItem(
+                            value: null,
+                            child: Text('All Teachers'),
+                          ),
+                          ...items.map((item) => DropdownMenuItem(
+                                value: item.id,
+                                child: Text(item.name),
+                              ),),
+                        ],
+                        onChanged: (value) => ref
+                            .read(timetableTeacherFilterProvider.notifier)
+                            .set(value),
+                      ),
+                      loading: () => const LinearProgressIndicator(),
+                      error: (_, __) => const SizedBox(),
+                    ),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showForm(BuildContext context, [TimetableEntry? entry]) {
+    showDialog<void>(
+      context: context,
+      builder: (context) => TimetableEntryForm(entry: entry),
+    );
+  }
+}
+
+class _TimetableCard extends ConsumerWidget {
+  const _TimetableCard({
+    required this.entry,
+    required this.canManage,
+  });
+
+  final TimetableEntry entry;
+  final bool canManage;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+      child: ListTile(
+        title: Text('${entry.dayLabel} • ${entry.startTime}–${entry.endTime}'),
+        subtitle: Text(
+          '${entry.subjectName} • ${entry.teacherName}\n'
+          '${entry.className} ${entry.sectionName}${entry.room == null ? '' : ' • Room ${entry.room}'}',
+        ),
+        isThreeLine: true,
+        trailing: canManage
+            ? PopupMenuButton<String>(
+                onSelected: (action) {
+                  if (action == 'edit') {
+                    showDialog<void>(
+                      context: context,
+                      builder: (context) => TimetableEntryForm(entry: entry),
+                    );
+                  } else if (action == 'delete') {
+                    _delete(context, ref, entry.id);
+                  }
+                },
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: 'edit',
+                    child: Text('Edit'),
+                  ),
+                  const PopupMenuItem(
+                    value: 'delete',
+                    child: Text('Delete'),
+                  ),
+                ],
+              )
+            : null,
+      ),
+    );
+  }
+
+  Future<void> _delete(BuildContext context, WidgetRef ref, String id) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Period'),
+        content: const Text('Are you sure you want to delete this period?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      try {
+        await ref.read(timetableRepositoryProvider).delete(id);
+        ref.invalidate(timetableEntriesProvider);
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(e.toString())),
+          );
+        }
+      }
+    }
+  }
+}

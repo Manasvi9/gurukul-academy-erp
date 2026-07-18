@@ -26,6 +26,8 @@ import '../../features/fees/presentation/screens/fee_dashboard_screen.dart';
 import '../../features/fees/presentation/screens/fee_student_ledger_screen.dart';
 import '../../features/fees/presentation/screens/fee_student_search_screen.dart';
 import '../../features/homework/presentation/screens/homework_screen.dart';
+import '../../features/profile/presentation/screens/profile_screen.dart';
+import '../../features/settings/presentation/screens/settings_screen.dart';
 import '../../features/students/domain/entities/student_summary.dart';
 import '../../features/students/presentation/screens/student_class_list_screen.dart';
 import '../../features/students/presentation/screens/student_details_screen.dart';
@@ -298,6 +300,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             subject: extra['subject'] as ExamSubject,
           );
         },
+      ),
+      GoRoute(
+        path: AppRoute.profile.path,
+        name: AppRoute.profile.name,
+        builder: (context, state) => const ProfileScreen(),
+      ),
+      GoRoute(
+        path: AppRoute.settings.path,
+        name: AppRoute.settings.name,
+        builder: (context, state) => const SettingsScreen(),
       ),
       GoRoute(
         path: AppRoute.studentDetails.path,

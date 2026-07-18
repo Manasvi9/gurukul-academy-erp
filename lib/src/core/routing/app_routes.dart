@@ -36,6 +36,8 @@ enum AppRoute {
   certificates('/certificates'),
   addCertificate('/certificates/add'),
   certificateDetails('/certificates/:certificateId'),
+  profile('/profile'),
+  settings('/settings'),
   notFound('/not-found');
 
   const AppRoute(this.path);

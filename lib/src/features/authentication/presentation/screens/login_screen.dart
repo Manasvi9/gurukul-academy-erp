@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/routing/app_routes.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/validation/validators.dart';
 import '../../../../shared/widgets/responsive_page.dart';
@@ -47,82 +48,88 @@ final class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
 
     return Scaffold(
-      body: SafeArea(
-        child: ResponsivePage(
-          child: ListView(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            children: [
-              const SizedBox(height: AppSpacing.xl),
-              Text(
-                'Gurukul Academy',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: AppSpacing.xs),
-              Text(
-                'Sign in to continue.',
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      'Login As',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    RoleSelector(
-                      selectedRole: _selectedRole,
-                      onChanged: (role) {
-                        setState(() {
-                          _selectedRole = role;
-                          _identifierController.clear();
-                          _passwordController.clear();
-                        });
-                      },
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    TextFormField(
-                      controller: _identifierController,
-                      keyboardType: _keyboardTypeForRole(_selectedRole),
-                      textInputAction: TextInputAction.next,
-                      validator: _identifierValidator,
-                      decoration: InputDecoration(
-                        labelText: _identifierLabel(_selectedRole),
-                        prefixIcon: Icon(_identifierIcon(_selectedRole)),
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          child: ResponsivePage(
+            maxWidth: 400,
+            child: Card(
+              margin: EdgeInsets.zero,
+              color: Colors.white,
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        'Welcome Back',
+                        style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    PasswordTextField(
-                      controller: _passwordController,
-                      labelText: 'Password',
-                      validator: Validators.password,
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: isLoading ? null : _handleForgotPassword,
-                        child: const Text('Forgot password?'),
+                      const SizedBox(height: AppSpacing.sm),
+                      Text(
+                        'Sign in to your account',
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: AppColors.neutral,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    FilledButton.icon(
-                      onPressed: isLoading ? null : _submit,
-                      icon: isLoading
-                          ? const SizedBox.square(
-                              dimension: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.login),
-                      label: Text(isLoading ? 'Signing in...' : 'Sign in'),
-                    ),
-                  ],
+                      const SizedBox(height: AppSpacing.xl),
+                      Text(
+                        'Login As',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      RoleSelector(
+                        selectedRole: _selectedRole,
+                        onChanged: (role) {
+                          setState(() {
+                            _selectedRole = role;
+                            _identifierController.clear();
+                            _passwordController.clear();
+                          });
+                        },
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+                      TextFormField(
+                        controller: _identifierController,
+                        keyboardType: _keyboardTypeForRole(_selectedRole),
+                        textInputAction: TextInputAction.next,
+                        validator: _identifierValidator,
+                        decoration: InputDecoration(
+                          labelText: _identifierLabel(_selectedRole),
+                          prefixIcon: Icon(_identifierIcon(_selectedRole)),
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      PasswordTextField(
+                        controller: _passwordController,
+                        labelText: 'Password',
+                        validator: Validators.password,
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: isLoading ? null : _handleForgotPassword,
+                          child: const Text('Forgot password?'),
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      FilledButton(
+                        onPressed: isLoading ? null : _submit,
+                        child: Text(isLoading ? 'Signing in...' : 'Sign in'),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ],
+            ),
           ),
         ),
       ),
