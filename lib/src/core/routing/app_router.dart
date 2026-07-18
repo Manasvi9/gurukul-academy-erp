@@ -11,6 +11,7 @@ import '../../features/authentication/presentation/screens/change_password_scree
 import '../../features/authentication/presentation/screens/login_screen.dart';
 import '../../features/dashboard/presentation/screens/dashboard_screen.dart';
 import '../../features/examinations/presentation/exam_form_screen.dart';
+import '../../features/examinations/presentation/exam_subjects_screen.dart';
 import '../../features/examinations/presentation/exams_screen.dart';
 import '../../features/fees/presentation/screens/fee_dashboard_screen.dart';
 import '../../features/fees/presentation/screens/fee_student_ledger_screen.dart';
@@ -206,6 +207,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRoute.editExam.name,
         builder: (context, state) => ExamFormScreen(
           examId: state.pathParameters['examId'],
+        ),
+      ),
+      GoRoute(
+        path: AppRoute.examSubjects.path,
+        name: AppRoute.examSubjects.name,
+        builder: (context, state) => ExamSubjectsScreen(
+          examId: state.pathParameters['examId']!,
         ),
       ),
       GoRoute(

@@ -201,6 +201,16 @@ final class ExamsScreen extends ConsumerWidget {
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                     ],
+                                    const SizedBox(height: 4),
+                                    TextButton.icon(
+                                      icon: const Icon(Icons.subject, size: 14),
+                                      label: const Text('Manage Subjects', style: TextStyle(fontSize: 12)),
+                                      style: TextButton.styleFrom(
+                                        padding: EdgeInsets.zero,
+                                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                      ),
+                                      onPressed: () => context.push('/exams/${exam.id}/subjects'),
+                                    ),
                                   ],
                                 ),
                                 trailing: PopupMenuButton<String>(

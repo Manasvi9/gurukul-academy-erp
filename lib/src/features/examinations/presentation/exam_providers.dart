@@ -4,6 +4,7 @@ import '../../../app/bootstrap/app_bootstrap.dart';
 import '../data/exam_repository.dart';
 import '../domain/entities/exam.dart';
 import '../domain/entities/exam_mark.dart';
+import '../domain/entities/exam_subject.dart';
 
 final examRepositoryProvider = Provider(
   (ref) => SupabaseExamRepository(ref.watch(supabaseClientProvider)),
@@ -48,6 +49,34 @@ final examDeleteProvider = Provider<Future<void> Function(String)>((ref) {
   return (id) async {
     await ref.read(examRepositoryProvider).deleteExam(id);
     ref.invalidate(examsProvider);
+  };
+});
+
+final examSubjectsProvider = FutureProvider.family<List<ExamSubject>, String>((ref, examId) {
+  return ref.watch(examRepositoryProvider).listSubjects(examId);
+});
+
+final examSubjectAddProvider =
+    Provider<Future<void> Function(String, Map<String, Object?>)>((ref) {
+  return (examId, values) async {
+    await ref.read(examRepositoryProvider).addSubject(values);
+    ref.invalidate(examSubjectsProvider(examId));
+  };
+});
+
+final examSubjectUpdateProvider =
+    Provider<Future<void> Function(String, String, Map<String, Object?>)>((ref) {
+  return (examId, id, values) async {
+    await ref.read(examRepositoryProvider).updateSubject(id, values);
+    ref.invalidate(examSubjectsProvider(examId));
+  };
+});
+
+final examSubjectDeleteProvider =
+    Provider<Future<void> Function(String, String)>((ref) {
+  return (examId, id) async {
+    await ref.read(examRepositoryProvider).deleteSubject(id);
+    ref.invalidate(examSubjectsProvider(examId));
   };
 });
 

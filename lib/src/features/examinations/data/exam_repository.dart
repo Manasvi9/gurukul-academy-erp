@@ -2,8 +2,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../domain/entities/exam.dart';
 import '../domain/entities/exam_mark.dart';
+import '../domain/entities/exam_subject.dart';
 import '../domain/repositories/exam_repository.dart';
 import 'models/exam_model.dart';
+import 'models/exam_subject_model.dart';
 
 final class SupabaseExamRepository implements ExamRepository {
   SupabaseExamRepository(this._client);
@@ -44,6 +46,30 @@ final class SupabaseExamRepository implements ExamRepository {
   Future<void> archive(String id) => _client
       .from('exams')
       .update({'is_archived': true, 'status': 'archived'}).eq('id', id);
+
+  @override
+  Future<List<ExamSubject>> listSubjects(String examId) async {
+    final rows = await _client
+        .from('exam_subjects')
+        .select()
+        .eq('exam_id', examId);
+    return rows
+        .cast<Map<String, Object?>>()
+        .map(ExamSubjectModel.fromJson)
+        .toList();
+  }
+
+  @override
+  Future<void> addSubject(Map<String, Object?> values) =>
+      _client.from('exam_subjects').insert(values);
+
+  @override
+  Future<void> updateSubject(String id, Map<String, Object?> values) =>
+      _client.from('exam_subjects').update(values).eq('id', id);
+
+  @override
+  Future<void> deleteSubject(String id) =>
+      _client.from('exam_subjects').delete().eq('id', id);
 
   @override
   Future<void> saveMarks({

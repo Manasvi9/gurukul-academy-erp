@@ -26,6 +26,7 @@ enum AppRoute {
   exams('/exams'),
   addExam('/exams/add'),
   editExam('/exams/:examId/edit'),
+  examSubjects('/exams/:examId/subjects'),
   notFound('/not-found');
 
   const AppRoute(this.path);
