@@ -11,20 +11,20 @@ class SupabaseTransportRepository implements TransportRepository {
   @override
   Future<List<Vehicle>> getVehicles() async {
     final response = await _client.from('vehicles').select();
-    return (response as List<dynamic>)
-        .map((e) {
-          final row = e as Map<String, dynamic>;
-          return Vehicle(
-            id: row['id'] as String,
-            vehicleNumber: row['vehicle_number'] as String,
-            vehicleType: VehicleType.fromValue(row['vehicle_type'] as String),
-            driverName: row['driver_name'] as String,
-            driverPhone: row['driver_phone'] as String,
-            capacity: row['capacity'] as int,
-            status: VehicleStatus.fromValue(row['status'] as String),
-          );
-        },)
-        .toList();
+    return (response as List<dynamic>).map(
+      (e) {
+        final row = e as Map<String, dynamic>;
+        return Vehicle(
+          id: row['id'] as String,
+          vehicleNumber: row['vehicle_number'] as String,
+          vehicleType: VehicleType.fromValue(row['vehicle_type'] as String),
+          driverName: row['driver_name'] as String,
+          driverPhone: row['driver_phone'] as String,
+          capacity: row['capacity'] as int,
+          status: VehicleStatus.fromValue(row['status'] as String),
+        );
+      },
+    ).toList();
   }
 
   @override
@@ -63,7 +63,8 @@ class SupabaseTransportRepository implements TransportRepository {
 
   @override
   Future<List<TransportRoute>> getRoutes() async {
-    final response = await _client.from('transport_routes').select('*, route_stops(*)');
+    final response =
+        await _client.from('transport_routes').select('*, route_stops(*)');
     return (response as List<dynamic>).map((e) {
       final routeMap = e as Map<String, dynamic>;
       final stops = (routeMap['route_stops'] as List<dynamic>).map((s) {
@@ -91,7 +92,7 @@ class SupabaseTransportRepository implements TransportRepository {
         .select('id')
         .single();
     final routeId = response['id'] as String;
-    
+
     for (final stop in route.stops) {
       await _client.from('route_stops').insert({
         'route_id': routeId,
@@ -106,8 +107,10 @@ class SupabaseTransportRepository implements TransportRepository {
 
   @override
   Future<void> updateRoute(TransportRoute route) async {
-    await _client.from('transport_routes').update({'route_name': route.routeName}).eq('id', route.id);
-    
+    await _client
+        .from('transport_routes')
+        .update({'route_name': route.routeName}).eq('id', route.id);
+
     await _client.from('route_stops').delete().eq('route_id', route.id);
     for (final stop in route.stops) {
       await _client.from('route_stops').insert({

@@ -27,7 +27,8 @@ class VehicleManagementScreen extends ConsumerWidget {
                   margin: const EdgeInsets.all(AppSpacing.sm),
                   child: ListTile(
                     title: Text(vehicle.vehicleNumber),
-                    subtitle: Text('${vehicle.vehicleType.label} - Driver: ${vehicle.driverName}'),
+                    subtitle: Text(
+                        '${vehicle.vehicleType.label} - Driver: ${vehicle.driverName}',),
                     trailing: Text(vehicle.status.label),
                   ),
                 );

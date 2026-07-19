@@ -10,10 +10,12 @@ class GenerateCertificateScreen extends ConsumerStatefulWidget {
   const GenerateCertificateScreen({super.key});
 
   @override
-  ConsumerState<GenerateCertificateScreen> createState() => _GenerateCertificateScreenState();
+  ConsumerState<GenerateCertificateScreen> createState() =>
+      _GenerateCertificateScreenState();
 }
 
-class _GenerateCertificateScreenState extends ConsumerState<GenerateCertificateScreen> {
+class _GenerateCertificateScreenState
+    extends ConsumerState<GenerateCertificateScreen> {
   final _formKey = GlobalKey<FormState>();
   String _studentId = '';
   CertificateType _type = CertificateType.bonafide;
@@ -50,9 +52,8 @@ class _GenerateCertificateScreenState extends ConsumerState<GenerateCertificateS
             TextFormField(
               decoration: const InputDecoration(labelText: 'Cert Number'),
               onChanged: (value) => _certificateNumber = value,
-              validator: (value) => value == null || value.trim().isEmpty
-                  ? 'Required'
-                  : null,
+              validator: (value) =>
+                  value == null || value.trim().isEmpty ? 'Required' : null,
             ),
             if (_type == CertificateType.transfer)
               const Padding(
@@ -62,7 +63,8 @@ class _GenerateCertificateScreenState extends ConsumerState<GenerateCertificateS
                 ),
               ),
             TextFormField(
-              decoration: const InputDecoration(labelText: 'Remarks (optional)'),
+              decoration:
+                  const InputDecoration(labelText: 'Remarks (optional)'),
               maxLines: 3,
               onChanged: (value) => _remarks = value,
             ),

@@ -39,6 +39,15 @@ final class _ChangePasswordScreenState
     final authState = ref.watch(authControllerProvider);
     final isLoading = authState.status == AuthStatus.authenticating;
 
+    ref.listen(authControllerProvider, (_, next) {
+      final message = next.message;
+      if (message != null && message.isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message)),
+        );
+      }
+    });
+
     return Scaffold(
       appBar: AppBar(title: const Text('Change Password')),
       body: SafeArea(

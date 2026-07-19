@@ -97,14 +97,20 @@ class TimetableScreen extends ConsumerWidget {
                             value: null,
                             child: Text('All Classes'),
                           ),
-                          ...items.map((item) => DropdownMenuItem(
-                                value: item.id,
-                                child: Text(item.name),
-                              ),),
+                          ...items.map(
+                            (item) => DropdownMenuItem(
+                              value: item.id,
+                              child: Text(item.name),
+                            ),
+                          ),
                         ],
                         onChanged: (value) {
-                          ref.read(timetableClassFilterProvider.notifier).set(value);
-                          ref.read(timetableSectionFilterProvider.notifier).set(null);
+                          ref
+                              .read(timetableClassFilterProvider.notifier)
+                              .set(value);
+                          ref
+                              .read(timetableSectionFilterProvider.notifier)
+                              .set(null);
                         },
                       ),
                       loading: () => const LinearProgressIndicator(),
@@ -121,15 +127,19 @@ class TimetableScreen extends ConsumerWidget {
                                 ? <DropdownMenuItem<String?>>[]
                                 : items
                                     .where((s) => s.classId == classId)
-                                    .map((item) => DropdownMenuItem<String?>(
-                                          value: item.id,
-                                          child: Text(item.name),
-                                        ),)
+                                    .map(
+                                      (item) => DropdownMenuItem<String?>(
+                                        value: item.id,
+                                        child: Text(item.name),
+                                      ),
+                                    )
                                     .toList();
                             return DropdownButtonFormField<String?>(
-                              initialValue: ref.watch(timetableSectionFilterProvider),
+                              initialValue:
+                                  ref.watch(timetableSectionFilterProvider),
                               decoration: const InputDecoration(
-                                  labelText: 'Filter Section',),
+                                labelText: 'Filter Section',
+                              ),
                               items: [
                                 const DropdownMenuItem(
                                   value: null,
@@ -140,8 +150,9 @@ class TimetableScreen extends ConsumerWidget {
                               onChanged: classId == null
                                   ? null
                                   : (value) => ref
-                                      .read(timetableSectionFilterProvider
-                                          .notifier,)
+                                      .read(
+                                        timetableSectionFilterProvider.notifier,
+                                      )
                                       .set(value),
                             );
                           },
@@ -163,10 +174,12 @@ class TimetableScreen extends ConsumerWidget {
                             value: null,
                             child: Text('All Teachers'),
                           ),
-                          ...items.map((item) => DropdownMenuItem(
-                                value: item.id,
-                                child: Text(item.name),
-                              ),),
+                          ...items.map(
+                            (item) => DropdownMenuItem(
+                              value: item.id,
+                              child: Text(item.name),
+                            ),
+                          ),
                         ],
                         onChanged: (value) => ref
                             .read(timetableTeacherFilterProvider.notifier)

@@ -34,7 +34,8 @@ final class DashboardNotificationsSection extends StatelessWidget {
                 leading: const Icon(Icons.notifications_outlined),
                 title: Text(notification.title),
                 subtitle: Text(notification.message),
-                trailing: Text(DateFormatter.displayDate(notification.createdAt)),
+                trailing:
+                    Text(DateFormatter.displayDate(notification.createdAt)),
               ),
             ),
           ),

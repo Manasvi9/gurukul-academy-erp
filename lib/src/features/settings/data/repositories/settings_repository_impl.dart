@@ -15,7 +15,8 @@ final class SupabaseSettingsRepository implements SettingsRepository {
         .maybeSingle();
 
     if (response == null) {
-      return const AppSettings(theme: AppTheme.system, notificationsEnabled: true);
+      return const AppSettings(
+          theme: AppTheme.system, notificationsEnabled: true,);
     }
 
     return AppSettings(
@@ -32,10 +33,10 @@ final class SupabaseSettingsRepository implements SettingsRepository {
   }) async {
     final updates = <String, dynamic>{};
     if (theme != null) updates['theme'] = theme.name;
-    if (notificationsEnabled != null) updates['notifications_enabled'] = notificationsEnabled;
+    if (notificationsEnabled != null) {
+      updates['notifications_enabled'] = notificationsEnabled;
+    }
 
-    await _client
-        .from('user_settings')
-        .upsert({...updates, 'user_id': userId});
+    await _client.from('user_settings').upsert({...updates, 'user_id': userId});
   }
 }

@@ -66,7 +66,8 @@ final examDeleteProvider = Provider<Future<void> Function(String)>((ref) {
   };
 });
 
-final examSubjectsProvider = FutureProvider.family<List<ExamSubject>, String>((ref, examId) {
+final examSubjectsProvider =
+    FutureProvider.family<List<ExamSubject>, String>((ref, examId) {
   return ref.watch(examRepositoryProvider).listSubjects(examId);
 });
 
@@ -79,7 +80,8 @@ final examSubjectAddProvider =
 });
 
 final examSubjectUpdateProvider =
-    Provider<Future<void> Function(String, String, Map<String, Object?>)>((ref) {
+    Provider<Future<void> Function(String, String, Map<String, Object?>)>(
+        (ref) {
   return (examId, id, values) async {
     await ref.read(examRepositoryProvider).updateSubject(id, values);
     ref.invalidate(examSubjectsProvider(examId));
@@ -94,7 +96,8 @@ final examSubjectDeleteProvider =
   };
 });
 
-final examMarksProvider = FutureProvider.family<List<ExamMark>, String>((ref, examSubjectId) {
+final examMarksProvider =
+    FutureProvider.family<List<ExamMark>, String>((ref, examSubjectId) {
   return ref.watch(examRepositoryProvider).listMarks(examSubjectId);
 });
 

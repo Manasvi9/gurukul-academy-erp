@@ -16,14 +16,16 @@ final class SupabaseReportRepository implements ReportRepository {
     DateTime? endDate,
   }) async {
     // Await to avoid unawaited_futures warning
-    await _client.from('any_table').select('*'); 
-    
+    await _client.from('any_table').select('*');
+
     // Implement report-specific logic based on ReportType
     // For now, returning a mock to set up the architecture
     return ReportData(
       title: type.name.toUpperCase(),
       headers: ['Column 1', 'Column 2'],
-      rows: [['Data 1', 'Data 2']],
+      rows: [
+        ['Data 1', 'Data 2'],
+      ],
     );
   }
 }

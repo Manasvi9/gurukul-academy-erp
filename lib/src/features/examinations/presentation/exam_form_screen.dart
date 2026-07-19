@@ -86,7 +86,8 @@ final class _ExamFormScreenState extends ConsumerState<ExamFormScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: Text(widget.isEditing ? 'Edit Examination' : 'Create Examination'),
+        title:
+            Text(widget.isEditing ? 'Edit Examination' : 'Create Examination'),
       ),
       body: ResponsivePage(
         maxWidth: 600,
@@ -115,12 +116,16 @@ final class _ExamFormScreenState extends ConsumerState<ExamFormScreen> {
                       child: Row(
                         children: [
                           Icon(
-                            widget.isEditing ? Icons.edit_note : Icons.add_circle_outline,
+                            widget.isEditing
+                                ? Icons.edit_note
+                                : Icons.add_circle_outline,
                             color: const Color(0xFF8B4F30), // Dark peach/brown
                           ),
                           const SizedBox(width: AppSpacing.sm),
                           Text(
-                            widget.isEditing ? 'Modify Examination details' : 'Setup a new examination',
+                            widget.isEditing
+                                ? 'Modify Examination details'
+                                : 'Setup a new examination',
                             style: const TextStyle(
                               color: Color(0xFF8B4F30),
                               fontWeight: FontWeight.bold,
@@ -139,9 +144,10 @@ final class _ExamFormScreenState extends ConsumerState<ExamFormScreen> {
                         prefixIcon: Icon(Icons.assignment),
                         fillColor: Color(0xFFF9F9F9),
                       ),
-                      validator: (value) => value == null || value.trim().isEmpty
-                          ? 'Please enter exam name'
-                          : null,
+                      validator: (value) =>
+                          value == null || value.trim().isEmpty
+                              ? 'Please enter exam name'
+                              : null,
                     ),
                     const SizedBox(height: AppSpacing.md),
 
@@ -184,7 +190,9 @@ final class _ExamFormScreenState extends ConsumerState<ExamFormScreen> {
                               child: Text(y.name),
                             );
                           }).toList(),
-                          validator: (value) => value == null ? 'Academic year is required' : null,
+                          validator: (value) => value == null
+                              ? 'Academic year is required'
+                              : null,
                           onChanged: (value) {
                             setState(() {
                               _academicYearId = value;
@@ -215,7 +223,8 @@ final class _ExamFormScreenState extends ConsumerState<ExamFormScreen> {
                                 child: Text(c.name),
                               );
                             }).toList(),
-                            validator: (value) => value == null ? 'Class is required' : null,
+                            validator: (value) =>
+                                value == null ? 'Class is required' : null,
                             onChanged: (value) {
                               setState(() {
                                 _classId = value;
@@ -225,7 +234,8 @@ final class _ExamFormScreenState extends ConsumerState<ExamFormScreen> {
                           );
                         },
                       ),
-                    if (_academicYearId != null) const SizedBox(height: AppSpacing.md),
+                    if (_academicYearId != null)
+                      const SizedBox(height: AppSpacing.md),
 
                     // Section (Dependent on Class)
                     if (_classId != null)
@@ -245,7 +255,8 @@ final class _ExamFormScreenState extends ConsumerState<ExamFormScreen> {
                                 child: Text(s.name),
                               );
                             }).toList(),
-                            validator: (value) => value == null ? 'Section is required' : null,
+                            validator: (value) =>
+                                value == null ? 'Section is required' : null,
                             onChanged: (value) {
                               setState(() => _sectionId = value);
                             },
@@ -269,7 +280,8 @@ final class _ExamFormScreenState extends ConsumerState<ExamFormScreen> {
                               ),
                               child: Text(
                                 _startDate != null
-                                    ? DateFormat('dd MMM yyyy').format(_startDate!)
+                                    ? DateFormat('dd MMM yyyy')
+                                        .format(_startDate!)
                                     : 'Select Date',
                               ),
                             ),
@@ -294,7 +306,8 @@ final class _ExamFormScreenState extends ConsumerState<ExamFormScreen> {
                               ),
                               child: Text(
                                 _endDate != null
-                                    ? DateFormat('dd MMM yyyy').format(_endDate!)
+                                    ? DateFormat('dd MMM yyyy')
+                                        .format(_endDate!)
                                     : 'Select Date',
                               ),
                             ),
@@ -354,8 +367,10 @@ final class _ExamFormScreenState extends ConsumerState<ExamFormScreen> {
                         Expanded(
                           child: FilledButton(
                             style: FilledButton.styleFrom(
-                              backgroundColor: const Color(0xFFFFECE0), // Soft peach button color
-                              foregroundColor: const Color(0xFF8B4F30), // Dark peach/brown text
+                              backgroundColor: const Color(
+                                  0xFFFFECE0,), // Soft peach button color
+                              foregroundColor: const Color(
+                                  0xFF8B4F30,), // Dark peach/brown text
                               side: const BorderSide(color: Color(0xFFFFCCAC)),
                             ),
                             onPressed: _isSaving ? null : _save,
@@ -365,10 +380,13 @@ final class _ExamFormScreenState extends ConsumerState<ExamFormScreen> {
                                     width: 20,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation(Color(0xFF8B4F30)),
+                                      valueColor: AlwaysStoppedAnimation(
+                                          Color(0xFF8B4F30),),
                                     ),
                                   )
-                                : const Text('Save', style: TextStyle(fontWeight: FontWeight.bold)),
+                                : const Text('Save',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),),
                           ),
                         ),
                       ],
@@ -417,7 +435,8 @@ final class _ExamFormScreenState extends ConsumerState<ExamFormScreen> {
 
     if (_endDate != null && _endDate!.isBefore(_startDate!)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('End Date must be on or after Start Date')),
+        const SnackBar(
+            content: Text('End Date must be on or after Start Date'),),
       );
       return;
     }
@@ -433,7 +452,9 @@ final class _ExamFormScreenState extends ConsumerState<ExamFormScreen> {
         'section_id': _sectionId,
         'start_date': _startDate!.toIso8601String().split('T')[0],
         'end_date': _endDate?.toIso8601String().split('T')[0],
-        'description': _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
+        'description': _descriptionController.text.trim().isEmpty
+            ? null
+            : _descriptionController.text.trim(),
         'status': _status.value,
       };
 
@@ -445,7 +466,10 @@ final class _ExamFormScreenState extends ConsumerState<ExamFormScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(widget.isEditing ? 'Examination updated successfully' : 'Examination created successfully')),
+          SnackBar(
+              content: Text(widget.isEditing
+                  ? 'Examination updated successfully'
+                  : 'Examination created successfully',),),
         );
         context.pop();
       }

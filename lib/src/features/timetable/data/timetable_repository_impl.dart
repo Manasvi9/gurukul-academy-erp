@@ -40,10 +40,12 @@ final class SupabaseTimetableRepository implements TimetableRepository {
     final rows = await _client.rpc<List<dynamic>>('timetable_teacher_options');
     return rows
         .cast<Map<String, Object?>>()
-        .map((row) => TimetableTeacher(
-              row['id'] as String,
-              row['display_name'] as String,
-            ),)
+        .map(
+          (row) => TimetableTeacher(
+            row['id'] as String,
+            row['display_name'] as String,
+          ),
+        )
         .toList();
   }
 

@@ -9,7 +9,8 @@ final class ExamSubjectModel extends ExamSubject {
     required super.passingMarks,
   });
 
-  factory ExamSubjectModel.fromJson(Map<String, Object?> json) => ExamSubjectModel(
+  factory ExamSubjectModel.fromJson(Map<String, Object?> json) =>
+      ExamSubjectModel(
         id: json['id'] as String,
         examId: json['exam_id'] as String,
         subjectId: json['subject_id'] as String,

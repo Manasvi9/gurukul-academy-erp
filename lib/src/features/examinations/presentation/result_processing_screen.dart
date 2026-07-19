@@ -30,7 +30,8 @@ class ResultProcessingScreen extends ConsumerWidget {
               final confirm = await showDialog<bool>(
                 context: context,
                 builder: (context) => AlertDialog(
-                  title: Text(isPublished ? 'Unpublish Results' : 'Publish Results'),
+                  title: Text(
+                      isPublished ? 'Unpublish Results' : 'Publish Results',),
                   content: Text(
                     isPublished
                         ? 'Are you sure you want to unpublish these results? This will unlock marks editing.'
@@ -59,14 +60,16 @@ class ResultProcessingScreen extends ConsumerWidget {
           ),
           PopupMenuButton<String>(
             icon: const Icon(Icons.filter_list),
-            onSelected: (value) => ref.read(resultFilterProvider.notifier).state = value,
+            onSelected: (value) =>
+                ref.read(resultFilterProvider.notifier).state = value,
             itemBuilder: (context) => ['All', 'Passed', 'Failed']
                 .map((f) => PopupMenuItem(value: f, child: Text(f)))
                 .toList(),
           ),
           PopupMenuButton<String>(
             icon: const Icon(Icons.sort),
-            onSelected: (value) => ref.read(resultSortProvider.notifier).state = value,
+            onSelected: (value) =>
+                ref.read(resultSortProvider.notifier).state = value,
             itemBuilder: (context) => ['Roll Number', 'Name', 'Percentage']
                 .map((s) => PopupMenuItem(value: s, child: Text(s)))
                 .toList(),

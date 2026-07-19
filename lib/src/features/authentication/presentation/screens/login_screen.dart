@@ -66,17 +66,18 @@ final class _LoginScreenState extends ConsumerState<LoginScreen> {
                     children: [
                       Text(
                         'Welcome Back',
-                        style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
+                        style:
+                            Theme.of(context).textTheme.displayLarge?.copyWith(
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: AppSpacing.sm),
                       Text(
                         'Sign in to your account',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: AppColors.neutral,
-                        ),
+                              color: AppColors.neutral,
+                            ),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: AppSpacing.xl),

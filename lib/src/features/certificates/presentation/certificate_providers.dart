@@ -25,12 +25,12 @@ final certificateDetailsProvider =
 });
 
 final createCertificateControllerProvider = StateNotifierProvider.autoDispose<
-    CreateCertificateController,
-    AsyncValue<void>>((ref) {
+    CreateCertificateController, AsyncValue<void>>((ref) {
   return CreateCertificateController(ref.watch(certificateRepositoryProvider));
 });
 
-final class CreateCertificateController extends StateNotifier<AsyncValue<void>> {
+final class CreateCertificateController
+    extends StateNotifier<AsyncValue<void>> {
   CreateCertificateController(this._repository)
       : super(const AsyncValue.data(null));
 

@@ -35,8 +35,7 @@ final class DashboardAnalyticsGrid extends StatelessWidget {
               .map(
                 (card) => DashboardMetricCard(
                   card: card,
-                  onTap:
-                      card.routePath == null ? null : () => onCardTap(card),
+                  onTap: card.routePath == null ? null : () => onCardTap(card),
                 ),
               )
               .toList(),

@@ -6,7 +6,8 @@ import '../../domain/repositories/report_repository.dart';
 import '../providers/report_providers.dart';
 import '../utils/report_export_service.dart';
 
-final reportDataControllerProvider = FutureProvider.family<ReportData, ReportType>((ref, type) async {
+final reportDataControllerProvider =
+    FutureProvider.family<ReportData, ReportType>((ref, type) async {
   return ref.watch(reportRepositoryProvider).getReportData(type);
 });
 
@@ -28,16 +29,27 @@ class ReportScreen extends ConsumerWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  IconButton(onPressed: () => ReportExportService.exportToCsv(data), icon: const Icon(Icons.table_chart)),
-                  IconButton(onPressed: () => ReportExportService.exportToPdf(data), icon: const Icon(Icons.picture_as_pdf)),
+                  IconButton(
+                      onPressed: () => ReportExportService.exportToCsv(data),
+                      icon: const Icon(Icons.table_chart),),
+                  IconButton(
+                      onPressed: () => ReportExportService.exportToPdf(data),
+                      icon: const Icon(Icons.picture_as_pdf),),
                 ],
               ),
             ),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: DataTable(
-                columns: data.headers.map((h) => DataColumn(label: Text(h))).toList(),
-                rows: data.rows.map((r) => DataRow(cells: r.map((c) => DataCell(Text(c.toString()))).toList())).toList(),
+                columns: data.headers
+                    .map((h) => DataColumn(label: Text(h)))
+                    .toList(),
+                rows: data.rows
+                    .map((r) => DataRow(
+                        cells: r
+                            .map((c) => DataCell(Text(c.toString())))
+                            .toList(),),)
+                    .toList(),
               ),
             ),
           ],

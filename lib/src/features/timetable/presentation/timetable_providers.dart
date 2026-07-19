@@ -25,9 +25,12 @@ class StringNotifier extends Notifier<String?> {
   void set(String? value) => state = value;
 }
 
-final timetableClassFilterProvider = NotifierProvider<StringNotifier, String?>(StringNotifier.new);
-final timetableSectionFilterProvider = NotifierProvider<StringNotifier, String?>(StringNotifier.new);
-final timetableTeacherFilterProvider = NotifierProvider<StringNotifier, String?>(StringNotifier.new);
+final timetableClassFilterProvider =
+    NotifierProvider<StringNotifier, String?>(StringNotifier.new);
+final timetableSectionFilterProvider =
+    NotifierProvider<StringNotifier, String?>(StringNotifier.new);
+final timetableTeacherFilterProvider =
+    NotifierProvider<StringNotifier, String?>(StringNotifier.new);
 
 final timetableEntriesProvider =
     FutureProvider.autoDispose<List<TimetableEntry>>((ref) async {

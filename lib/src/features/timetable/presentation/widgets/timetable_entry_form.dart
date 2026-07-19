@@ -102,9 +102,9 @@ class _TimetableEntryFormState extends ConsumerState<TimetableEntryForm> {
     final sections = ref.watch(academicSectionsProvider);
 
     return AlertDialog(
-      title: Text(widget.entry == null
-          ? 'Add Timetable Period'
-          : 'Edit Timetable Period',),
+      title: Text(
+        widget.entry == null ? 'Add Timetable Period' : 'Edit Timetable Period',
+      ),
       content: SingleChildScrollView(
         child: Form(
           key: _formKey,
@@ -116,10 +116,12 @@ class _TimetableEntryFormState extends ConsumerState<TimetableEntryForm> {
                   initialValue: _classId,
                   decoration: const InputDecoration(labelText: 'Class'),
                   items: items
-                      .map((item) => DropdownMenuItem(
-                            value: item.id,
-                            child: Text(item.name),
-                          ),)
+                      .map(
+                        (item) => DropdownMenuItem(
+                          value: item.id,
+                          child: Text(item.name),
+                        ),
+                      )
                       .toList(),
                   onChanged: (value) => setState(() {
                     _classId = value;
@@ -138,10 +140,12 @@ class _TimetableEntryFormState extends ConsumerState<TimetableEntryForm> {
                     decoration: const InputDecoration(labelText: 'Section'),
                     items: items
                         .where((s) => s.classId == _classId)
-                        .map((item) => DropdownMenuItem(
-                              value: item.id,
-                              child: Text(item.name),
-                            ),)
+                        .map(
+                          (item) => DropdownMenuItem(
+                            value: item.id,
+                            child: Text(item.name),
+                          ),
+                        )
                         .toList(),
                     onChanged: (value) => setState(() => _sectionId = value),
                     validator: (v) => v == null ? 'Required' : null,
@@ -155,12 +159,16 @@ class _TimetableEntryFormState extends ConsumerState<TimetableEntryForm> {
                   initialValue: _subjectId,
                   decoration: const InputDecoration(labelText: 'Subject'),
                   items: items
-                      .where((s) =>
-                          _classId == null || s.classIds.contains(_classId),)
-                      .map((item) => DropdownMenuItem(
-                            value: item.id,
-                            child: Text(item.name),
-                          ),)
+                      .where(
+                        (s) =>
+                            _classId == null || s.classIds.contains(_classId),
+                      )
+                      .map(
+                        (item) => DropdownMenuItem(
+                          value: item.id,
+                          child: Text(item.name),
+                        ),
+                      )
                       .toList(),
                   onChanged: (value) => setState(() => _subjectId = value),
                   validator: (v) => v == null ? 'Required' : null,
@@ -174,10 +182,12 @@ class _TimetableEntryFormState extends ConsumerState<TimetableEntryForm> {
                   initialValue: _teacherId,
                   decoration: const InputDecoration(labelText: 'Teacher'),
                   items: items
-                      .map((item) => DropdownMenuItem(
-                            value: item.id,
-                            child: Text(item.name),
-                          ),)
+                      .map(
+                        (item) => DropdownMenuItem(
+                          value: item.id,
+                          child: Text(item.name),
+                        ),
+                      )
                       .toList(),
                   onChanged: (value) => setState(() => _teacherId = value),
                   validator: (v) => v == null ? 'Required' : null,

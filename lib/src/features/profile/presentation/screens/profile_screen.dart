@@ -19,20 +19,26 @@ class ProfileScreen extends ConsumerWidget {
             Center(
               child: CircleAvatar(
                 radius: 50,
-                backgroundImage: profile.avatarUrl != null 
-                  ? NetworkImage(profile.avatarUrl!) 
-                  : null,
-                child: profile.avatarUrl == null 
-                  ? const Icon(Icons.person, size: 50) 
-                  : null,
+                backgroundImage: profile.avatarUrl != null
+                    ? NetworkImage(profile.avatarUrl!)
+                    : null,
+                child: profile.avatarUrl == null
+                    ? const Icon(Icons.person, size: 50)
+                    : null,
               ),
             ),
             const SizedBox(height: 16),
-            Text(profile.name, style: Theme.of(context).textTheme.headlineSmall, textAlign: TextAlign.center),
-            Text(profile.email, style: Theme.of(context).textTheme.bodyLarge, textAlign: TextAlign.center),
+            Text(profile.name,
+                style: Theme.of(context).textTheme.headlineSmall,
+                textAlign: TextAlign.center,),
+            Text(profile.email,
+                style: Theme.of(context).textTheme.bodyLarge,
+                textAlign: TextAlign.center,),
             const SizedBox(height: 24),
             ListTile(title: const Text('Role'), subtitle: Text(profile.role)),
-            ListTile(title: const Text('School'), subtitle: Text(profile.schoolName ?? 'N/A')),
+            ListTile(
+                title: const Text('School'),
+                subtitle: Text(profile.schoolName ?? 'N/A'),),
             const Divider(),
             ListTile(
               leading: const Icon(Icons.lock),

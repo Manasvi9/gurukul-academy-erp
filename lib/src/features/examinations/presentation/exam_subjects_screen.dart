@@ -12,7 +12,8 @@ import '../domain/entities/exam_subject.dart';
 import 'exam_providers.dart';
 
 final class ExamSubjectsScreen extends ConsumerStatefulWidget {
-  const ExamSubjectsScreen({required this.examId, required this.exam, super.key});
+  const ExamSubjectsScreen(
+      {required this.examId, required this.exam, super.key,});
   final String examId;
   final Exam exam;
 
@@ -68,7 +69,8 @@ final class _ExamSubjectsScreenState extends ConsumerState<ExamSubjectsScreen> {
                     value: academicSubjectsAsync,
                     data: (allSubjects) {
                       if (subjects.isEmpty) {
-                        return const Center(child: Text('No subjects added yet.'));
+                        return const Center(
+                            child: Text('No subjects added yet.'),);
                       }
                       return ListView.builder(
                         itemCount: subjects.length,
@@ -103,7 +105,8 @@ final class _ExamSubjectsScreenState extends ConsumerState<ExamSubjectsScreen> {
                                     ),
                                     IconButton(
                                       icon: const Icon(Icons.delete),
-                                      onPressed: () => _deleteSubject(subject.id),
+                                      onPressed: () =>
+                                          _deleteSubject(subject.id),
                                     ),
                                   ],
                                   IconButton(
@@ -203,19 +206,17 @@ final class _ExamSubjectsScreenState extends ConsumerState<ExamSubjectsScreen> {
                   controller: maxMarksController,
                   decoration: const InputDecoration(labelText: 'Maximum Marks'),
                   keyboardType: TextInputType.number,
-                  validator: (value) =>
-                      (double.tryParse(value ?? '') ?? 0) <= 0
-                          ? 'Invalid marks'
-                          : null,
+                  validator: (value) => (double.tryParse(value ?? '') ?? 0) <= 0
+                      ? 'Invalid marks'
+                      : null,
                 ),
                 TextFormField(
                   controller: passMarksController,
                   decoration: const InputDecoration(labelText: 'Passing Marks'),
                   keyboardType: TextInputType.number,
-                  validator: (value) =>
-                      (double.tryParse(value ?? '') ?? -1) < 0
-                          ? 'Invalid marks'
-                          : null,
+                  validator: (value) => (double.tryParse(value ?? '') ?? -1) < 0
+                      ? 'Invalid marks'
+                      : null,
                 ),
               ],
             ),

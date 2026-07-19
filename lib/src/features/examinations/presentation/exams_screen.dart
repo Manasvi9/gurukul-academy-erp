@@ -34,7 +34,8 @@ final class ExamsScreen extends ConsumerWidget {
         foregroundColor: const Color(0xFF8B4F30), // Dark peach/brown text
         onPressed: () => context.push(AppRoute.addExam.path),
         icon: const Icon(Icons.add),
-        label: const Text('Create Exam', style: TextStyle(fontWeight: FontWeight.bold)),
+        label: const Text('Create Exam',
+            style: TextStyle(fontWeight: FontWeight.bold),),
       ),
       body: ResponsivePage(
         maxWidth: 1000,
@@ -97,8 +98,9 @@ final class ExamsScreen extends ConsumerWidget {
                         fillColor: Color(0xFFF9F9F9),
                         filled: true,
                       ),
-                      onChanged: (value) =>
-                          ref.read(examSearchQueryProvider.notifier).state = value,
+                      onChanged: (value) => ref
+                          .read(examSearchQueryProvider.notifier)
+                          .state = value,
                     ),
                   ),
                   const SizedBox(width: AppSpacing.sm),
@@ -127,8 +129,9 @@ final class ExamsScreen extends ConsumerWidget {
                             }),
                           ],
                           onChanged: (value) {
-                            ref.read(examAcademicYearFilterProvider.notifier).state =
-                                value;
+                            ref
+                                .read(examAcademicYearFilterProvider.notifier)
+                                .state = value;
                           },
                         );
                       },
@@ -145,19 +148,23 @@ final class ExamsScreen extends ConsumerWidget {
                   data: (items) => items.isEmpty
                       ? const AppEmptyView(
                           title: 'No Examinations Found',
-                          message: 'Create a new exam or change search filters to get started.',
+                          message:
+                              'Create a new exam or change search filters to get started.',
                         )
                       : ListView.builder(
                           itemCount: items.length,
                           itemBuilder: (context, index) {
                             final exam = items[index];
-                            final startFormatted = DateFormat('dd MMM yyyy').format(exam.startDate);
+                            final startFormatted = DateFormat('dd MMM yyyy')
+                                .format(exam.startDate);
                             final endFormatted = exam.endDate != null
-                                ? DateFormat('dd MMM yyyy').format(exam.endDate!)
+                                ? DateFormat('dd MMM yyyy')
+                                    .format(exam.endDate!)
                                 : 'Ongoing';
 
                             return Card(
-                              margin: const EdgeInsets.only(bottom: AppSpacing.md),
+                              margin:
+                                  const EdgeInsets.only(bottom: AppSpacing.md),
                               color: Colors.white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -173,7 +180,8 @@ final class ExamsScreen extends ConsumerWidget {
                                     Expanded(
                                       child: Text(
                                         exam.name,
-                                        style: const TextStyle(fontWeight: FontWeight.bold),
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold,),
                                       ),
                                     ),
                                     _buildStatusChip(exam.status),
@@ -185,18 +193,24 @@ final class ExamsScreen extends ConsumerWidget {
                                     const SizedBox(height: 6),
                                     Text(
                                       'Type: ${exam.type.label}',
-                                      style: TextStyle(color: Colors.grey.shade800, fontSize: 13),
+                                      style: TextStyle(
+                                          color: Colors.grey.shade800,
+                                          fontSize: 13,),
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
                                       'Schedule: $startFormatted - $endFormatted',
-                                      style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                                      style: TextStyle(
+                                          color: Colors.grey.shade600,
+                                          fontSize: 12,),
                                     ),
                                     if (exam.description != null) ...[
                                       const SizedBox(height: 4),
                                       Text(
                                         exam.description!,
-                                        style: TextStyle(color: Colors.grey.shade500, fontSize: 11),
+                                        style: TextStyle(
+                                            color: Colors.grey.shade500,
+                                            fontSize: 11,),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -204,10 +218,12 @@ final class ExamsScreen extends ConsumerWidget {
                                     const SizedBox(height: 4),
                                     TextButton.icon(
                                       icon: const Icon(Icons.subject, size: 14),
-                                      label: const Text('Manage Subjects', style: TextStyle(fontSize: 12)),
+                                      label: const Text('Manage Subjects',
+                                          style: TextStyle(fontSize: 12),),
                                       style: TextButton.styleFrom(
                                         padding: EdgeInsets.zero,
-                                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                        tapTargetSize:
+                                            MaterialTapTargetSize.shrinkWrap,
                                       ),
                                       onPressed: () => context.push(
                                         '/exams/${exam.id}/subjects',
@@ -217,7 +233,8 @@ final class ExamsScreen extends ConsumerWidget {
                                   ],
                                 ),
                                 trailing: PopupMenuButton<String>(
-                                  onSelected: (action) => _handleAction(context, ref, action, exam),
+                                  onSelected: (action) =>
+                                      _handleAction(context, ref, action, exam),
                                   itemBuilder: (context) => [
                                     const PopupMenuItem(
                                       value: 'edit',
@@ -243,9 +260,13 @@ final class ExamsScreen extends ConsumerWidget {
                                       value: 'delete',
                                       child: Row(
                                         children: [
-                                          Icon(Icons.delete, size: 20, color: Colors.red.shade600),
+                                          Icon(Icons.delete,
+                                              size: 20,
+                                              color: Colors.red.shade600,),
                                           const SizedBox(width: AppSpacing.sm),
-                                          Text('Delete', style: TextStyle(color: Colors.red.shade600)),
+                                          Text('Delete',
+                                              style: TextStyle(
+                                                  color: Colors.red.shade600,),),
                                         ],
                                       ),
                                     ),
@@ -290,12 +311,14 @@ final class ExamsScreen extends ConsumerWidget {
       ),
       child: Text(
         status.label,
-        style: TextStyle(color: text, fontSize: 11, fontWeight: FontWeight.bold),
+        style:
+            TextStyle(color: text, fontSize: 11, fontWeight: FontWeight.bold),
       ),
     );
   }
 
-  void _handleAction(BuildContext context, WidgetRef ref, String action, Exam exam) async {
+  void _handleAction(
+      BuildContext context, WidgetRef ref, String action, Exam exam,) async {
     switch (action) {
       case 'edit':
         await context.push('/exams/${exam.id}/edit');
@@ -304,14 +327,16 @@ final class ExamsScreen extends ConsumerWidget {
         final confirm = await _showConfirmDialog(
           context,
           title: 'Archive Examination?',
-          content: 'Are you sure you want to archive "${exam.name}"? It will be hidden from active lists.',
+          content:
+              'Are you sure you want to archive "${exam.name}"? It will be hidden from active lists.',
           confirmLabel: 'Archive',
         );
         if (confirm == true) {
           unawaited(ref.read(examArchiveProvider)(exam.id));
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Examination archived successfully')),
+              const SnackBar(
+                  content: Text('Examination archived successfully'),),
             );
           }
         }
@@ -320,7 +345,8 @@ final class ExamsScreen extends ConsumerWidget {
         final confirm = await _showConfirmDialog(
           context,
           title: 'Delete Examination?',
-          content: 'Are you sure you want to permanently delete "${exam.name}"? This action cannot be undone.',
+          content:
+              'Are you sure you want to permanently delete "${exam.name}"? This action cannot be undone.',
           confirmLabel: 'Delete',
           isDanger: true,
         );
@@ -355,7 +381,9 @@ final class ExamsScreen extends ConsumerWidget {
           ),
           FilledButton(
             style: isDanger
-                ? FilledButton.styleFrom(backgroundColor: Colors.red.shade600, foregroundColor: Colors.white)
+                ? FilledButton.styleFrom(
+                    backgroundColor: Colors.red.shade600,
+                    foregroundColor: Colors.white,)
                 : FilledButton.styleFrom(
                     backgroundColor: const Color(0xFFFFECE0),
                     foregroundColor: const Color(0xFF8B4F30),

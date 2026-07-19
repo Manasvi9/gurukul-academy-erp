@@ -64,10 +64,8 @@ final class SupabaseExamRepository implements ExamRepository {
 
   @override
   Future<List<ExamSubject>> listSubjects(String examId) async {
-    final rows = await _client
-        .from('exam_subjects')
-        .select()
-        .eq('exam_id', examId);
+    final rows =
+        await _client.from('exam_subjects').select().eq('exam_id', examId);
     return rows
         .cast<Map<String, Object?>>()
         .map(ExamSubjectModel.fromJson)

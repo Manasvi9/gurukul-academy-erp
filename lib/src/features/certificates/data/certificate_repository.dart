@@ -55,11 +55,8 @@ class SupabaseCertificateRepository implements CertificateRepository {
 
   @override
   Future<Certificate> getById(String id) async {
-    final response = await _client
-        .from('certificates')
-        .select('*')
-        .eq('id', id)
-        .single();
+    final response =
+        await _client.from('certificates').select('*').eq('id', id).single();
     return _mapToCertificate(response.cast<String, dynamic>());
   }
 

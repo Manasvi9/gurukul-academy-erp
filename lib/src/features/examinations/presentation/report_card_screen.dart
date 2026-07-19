@@ -23,9 +23,11 @@ class ReportCardScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final marksAsync = ref.watch(studentExamMarksProvider(
-      (examId: exam.id, studentId: student.id),
-    ),);
+    final marksAsync = ref.watch(
+      studentExamMarksProvider(
+        (examId: exam.id, studentId: student.id),
+      ),
+    );
 
     return Scaffold(
       appBar: AppBar(title: const Text('Report Card')),
@@ -55,7 +57,8 @@ class ReportCardScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(
           children: [
-            Text('Gurukul Academy', style: Theme.of(context).textTheme.headlineSmall),
+            Text('Gurukul Academy',
+                style: Theme.of(context).textTheme.headlineSmall,),
             const SizedBox(height: AppSpacing.sm),
             Text(exam.name, style: Theme.of(context).textTheme.titleLarge),
           ],
@@ -72,8 +75,10 @@ class ReportCardScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Name: ${student.name}', style: Theme.of(context).textTheme.bodyLarge),
-            Text('Roll: ${student.rollNumber}', style: Theme.of(context).textTheme.bodyLarge),
+            Text('Name: ${student.name}',
+                style: Theme.of(context).textTheme.bodyLarge,),
+            Text('Roll: ${student.rollNumber}',
+                style: Theme.of(context).textTheme.bodyLarge,),
             Text(
               'Class: ${student.className} - ${student.sectionName}',
               style: Theme.of(context).textTheme.bodyLarge,
@@ -84,7 +89,8 @@ class ReportCardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildMarksTable(BuildContext context, List<({ExamSubject subject, ExamMark mark})> marks) {
+  Widget _buildMarksTable(BuildContext context,
+      List<({ExamSubject subject, ExamMark mark})> marks,) {
     return Card(
       margin: const EdgeInsets.all(AppSpacing.sm),
       child: DataTable(
@@ -92,22 +98,27 @@ class ReportCardScreen extends ConsumerWidget {
           DataColumn(label: Text('Subject')),
           DataColumn(label: Text('Max')),
           DataColumn(label: Text('Obt')),
-          DataColumn(label: Text('Result'),),
+          DataColumn(
+            label: Text('Result'),
+          ),
         ],
-        rows: marks.map((m) {
-          final mark = m.mark;
-          final subject = m.subject;
-          final isAbsent = mark.isFinal && mark.marks == null;
-          final isPass = !isAbsent && (mark.marks ?? 0) >= subject.passingMarks;
-          return DataRow(
-            cells: [
-              DataCell(Text(subject.subjectId)),
-              DataCell(Text('${subject.maximumMarks}')),
-              DataCell(Text(isAbsent ? 'AB' : '${mark.marks ?? '-'}')),
-              DataCell(Text(isPass ? 'Pass' : 'Fail')),
-            ],
-          );
-        },).toList(),
+        rows: marks.map(
+          (m) {
+            final mark = m.mark;
+            final subject = m.subject;
+            final isAbsent = mark.isFinal && mark.marks == null;
+            final isPass =
+                !isAbsent && (mark.marks ?? 0) >= subject.passingMarks;
+            return DataRow(
+              cells: [
+                DataCell(Text(subject.subjectId)),
+                DataCell(Text('${subject.maximumMarks}')),
+                DataCell(Text(isAbsent ? 'AB' : '${mark.marks ?? '-'}')),
+                DataCell(Text(isPass ? 'Pass' : 'Fail')),
+              ],
+            );
+          },
+        ).toList(),
       ),
     );
   }

@@ -60,7 +60,8 @@ final class FeeStudentLedgerScreen extends ConsumerWidget {
                       Row(
                         children: [
                           FilledButton.icon(
-                            onPressed: () => _recordPayment(context, ref, value),
+                            onPressed: () =>
+                                _recordPayment(context, ref, value),
                             icon: const Icon(Icons.payments_outlined),
                             label: const Text('Record Payment'),
                           ),

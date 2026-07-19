@@ -13,7 +13,7 @@ final class SupabaseProfileRepository implements ProfileRepository {
         .select('id, role, display_name, email, avatar_url')
         .eq('id', userId)
         .single();
-    
+
     return UserProfile(
       id: response['id'] as String,
       role: response['role'] as String,
@@ -32,7 +32,7 @@ final class SupabaseProfileRepository implements ProfileRepository {
     final updates = <String, dynamic>{};
     if (name != null) updates['display_name'] = name;
     if (avatarUrl != null) updates['avatar_url'] = avatarUrl;
-    
+
     await _client.from('staff_auth_profiles').update(updates).eq('id', userId);
   }
 }

@@ -13,7 +13,11 @@ import '../domain/entities/exam_subject.dart';
 import 'exam_providers.dart';
 
 final class MarksEntryScreen extends ConsumerStatefulWidget {
-  const MarksEntryScreen({required this.examSubjectId, required this.exam, required this.subject, super.key});
+  const MarksEntryScreen(
+      {required this.examSubjectId,
+      required this.exam,
+      required this.subject,
+      super.key,});
   final String examSubjectId;
   final Exam exam;
   final ExamSubject subject;
@@ -37,12 +41,17 @@ final class _MarksEntryScreenState extends ConsumerState<MarksEntryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final studentsAsync = ref.watch(studentListProvider(StudentListRequest(
-      academicYearId: widget.exam.academicYearId,
-      classId: widget.exam.classId,
-      sectionId: widget.exam.sectionId,
-    ),),);
-    final existingMarksAsync = ref.watch(examMarksProvider(widget.examSubjectId));
+    final studentsAsync = ref.watch(
+      studentListProvider(
+        StudentListRequest(
+          academicYearId: widget.exam.academicYearId,
+          classId: widget.exam.classId,
+          sectionId: widget.exam.sectionId,
+        ),
+      ),
+    );
+    final existingMarksAsync =
+        ref.watch(examMarksProvider(widget.examSubjectId));
 
     return Scaffold(
       appBar: AppBar(title: Text('Enter Marks: ${widget.exam.name}')),
@@ -59,19 +68,19 @@ final class _MarksEntryScreenState extends ConsumerState<MarksEntryScreen> {
                   itemBuilder: (context, index) {
                     final student = students[index];
                     final existingMark = existingMarks.firstWhere(
-                        (m) => m.studentId == student.id,
-                        orElse: () => ExamMark(
-                            studentId: student.id,
-                            examSubjectId: widget.examSubjectId,
-                            marks: null,
-                            isFinal: false,
-                        ),
+                      (m) => m.studentId == student.id,
+                      orElse: () => ExamMark(
+                        studentId: student.id,
+                        examSubjectId: widget.examSubjectId,
+                        marks: null,
+                        isFinal: false,
+                      ),
                     );
 
                     _marksControllers.putIfAbsent(
                       student.id,
                       () => TextEditingController(
-                          text: existingMark.marks?.toString() ?? '',
+                        text: existingMark.marks?.toString() ?? '',
                       ),
                     );
                     _absentStates.putIfAbsent(
@@ -82,14 +91,16 @@ final class _MarksEntryScreenState extends ConsumerState<MarksEntryScreen> {
                     return Card(
                       margin: const EdgeInsets.all(AppSpacing.sm),
                       child: ListTile(
-                        leading: CircleAvatar(child: Text('${student.rollNumber ?? ''}')),
+                        leading: CircleAvatar(
+                            child: Text('${student.rollNumber ?? ''}'),),
                         title: Text(student.name),
                         subtitle: Row(
                           children: [
                             Expanded(
                               child: TextFormField(
                                 controller: _marksControllers[student.id],
-                                decoration: const InputDecoration(labelText: 'Marks'),
+                                decoration:
+                                    const InputDecoration(labelText: 'Marks'),
                                 keyboardType: TextInputType.number,
                                 enabled: !_absentStates[student.id]!,
                               ),
@@ -97,7 +108,8 @@ final class _MarksEntryScreenState extends ConsumerState<MarksEntryScreen> {
                             const SizedBox(width: AppSpacing.md),
                             Checkbox(
                               value: _absentStates[student.id],
-                              onChanged: (value) => setState(() => _absentStates[student.id] = value!),
+                              onChanged: (value) => setState(
+                                  () => _absentStates[student.id] = value!,),
                             ),
                             const Text('Absent'),
                           ],
@@ -124,28 +136,34 @@ final class _MarksEntryScreenState extends ConsumerState<MarksEntryScreen> {
     final marks = <ExamMark>[];
     for (final studentId in _marksControllers.keys) {
       if (_absentStates[studentId]!) {
-        marks.add(ExamMark(
-          studentId: studentId,
-          examSubjectId: widget.examSubjectId,
-          marks: null,
-          isFinal: true,
-        ),);
+        marks.add(
+          ExamMark(
+            studentId: studentId,
+            examSubjectId: widget.examSubjectId,
+            marks: null,
+            isFinal: true,
+          ),
+        );
       } else {
         final marksValue = double.tryParse(_marksControllers[studentId]!.text);
         if (marksValue == null ||
             marksValue < 0 ||
             marksValue > widget.subject.maximumMarks) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('Invalid marks for a student.'),
-          ),);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Invalid marks for a student.'),
+            ),
+          );
           return;
         }
-        marks.add(ExamMark(
-          studentId: studentId,
-          examSubjectId: widget.examSubjectId,
-          marks: marksValue,
-          isFinal: true,
-        ),);
+        marks.add(
+          ExamMark(
+            studentId: studentId,
+            examSubjectId: widget.examSubjectId,
+            marks: marksValue,
+            isFinal: true,
+          ),
+        );
       }
     }
 
