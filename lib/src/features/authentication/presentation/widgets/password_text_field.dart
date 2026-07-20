@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../../../../shared/widgets/app_text_field.dart';
+
 final class PasswordTextField extends StatefulWidget {
   const PasswordTextField({
+    super.key,
     required this.controller,
     required this.labelText,
     required this.validator,
-    super.key,
   });
 
   final TextEditingController controller;
@@ -21,27 +23,42 @@ final class _PasswordTextFieldState extends State<PasswordTextField> {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
+    return AppTextField(
       controller: widget.controller,
-      obscureText: _obscureText,
+      label: widget.labelText,
       validator: widget.validator,
+      obscureText: _obscureText,
       textInputAction: TextInputAction.done,
-      decoration: InputDecoration(
-        labelText: widget.labelText,
-        prefixIcon: const Icon(Icons.lock_outline),
-        suffixIcon: IconButton(
-          tooltip: _obscureText ? 'Show password' : 'Hide password',
-          onPressed: () {
-            setState(() {
-              _obscureText = !_obscureText;
-            });
+      prefixIcon: Icons.lock_outline_rounded,
+      suffixIcon: IconButton(
+        splashRadius: 20,
+        tooltip: _obscureText
+            ? 'Show password'
+            : 'Hide password',
+        icon: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 180),
+          transitionBuilder: (child, animation) {
+            return RotationTransition(
+              turns: animation,
+              child: FadeTransition(
+                opacity: animation,
+                child: child,
+              ),
+            );
           },
-          icon: Icon(
+          child: Icon(
             _obscureText
                 ? Icons.visibility_outlined
                 : Icons.visibility_off_outlined,
+            key: ValueKey(_obscureText),
+            color: const Color(0xFF6B7280),
           ),
         ),
+        onPressed: () {
+          setState(() {
+            _obscureText = !_obscureText;
+          });
+        },
       ),
     );
   }

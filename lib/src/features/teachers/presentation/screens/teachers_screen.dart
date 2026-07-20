@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/widgets/app_async_view.dart';
 import '../../../../shared/widgets/app_empty_view.dart';
@@ -7,34 +10,64 @@ import '../../../../shared/widgets/responsive_page.dart';
 import '../../domain/entities/teacher.dart';
 import '../providers/teacher_providers.dart';
 
-final class TeachersScreen extends ConsumerWidget {
+final class TeachersScreen extends ConsumerStatefulWidget {
   const TeachersScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<TeachersScreen> createState() => _TeachersScreenState();
+}
+
+final class _TeachersScreenState extends ConsumerState<TeachersScreen> {
+  Timer? _debounce;
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final teachers = ref.watch(teachersProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Teacher Management')),
+      appBar: AppBar(
+        elevation: 0,
+        centerTitle: false,
+        titleSpacing: 20,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Teachers'),
+            Text(
+              'Manage teaching staff',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        ),
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _form(context, ref),
         icon: const Icon(Icons.person_add),
-        label: const Text('Add teacher'),
+        label: const Text('Add Teacher'),
       ),
       body: ResponsivePage(
         maxWidth: 1000,
         child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
+          padding: const EdgeInsets.all(AppSpacing.lg),
           child: Column(
             children: [
               TextField(
-                decoration: const InputDecoration(
-                  prefixIcon: Icon(Icons.search),
-                  labelText: 'Search name or employee ID',
+                decoration: InputDecoration(
+                  hintText: 'Search by teacher name or employee ID',
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: const Icon(Icons.manage_search_outlined),
+                  filled: true,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                  ),
                 ),
-                onChanged: (value) =>
-                    ref.read(teacherSearchProvider.notifier).state = value,
               ),
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: AppSpacing.lg),
               Expanded(
                 child: AppAsyncView(
                   value: teachers,
@@ -50,15 +83,32 @@ final class TeachersScreen extends ConsumerWidget {
                               ? ListView(
                                   children: items
                                       .map(
-                                        (teacher) => ListTile(
-                                          title: Text(teacher.fullName),
-                                          subtitle: Text(teacher.employeeId),
-                                          trailing: IconButton(
-                                            icon: const Icon(Icons.edit),
-                                            onPressed: () => _form(
-                                              context,
-                                              ref,
-                                              teacher: teacher,
+                                        (teacher) => Card(
+                                          elevation: 2,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(18),
+                                          ),
+                                          child: ListTile(
+                                            title: Text(
+                                              teacher.fullName,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .titleMedium,
+                                            ),
+                                            subtitle: Text(
+                                              'Employee ID • ${teacher.employeeId}',
+                                            ),
+                                            leading: const CircleAvatar(
+                                              child: Icon(Icons.person_outline),
+                                            ),
+                                            trailing: IconButton(
+                                              icon: const Icon(Icons.edit),
+                                              onPressed: () => _form(
+                                                context,
+                                                ref,
+                                                teacher: teacher,
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -67,12 +117,38 @@ final class TeachersScreen extends ConsumerWidget {
                                 )
                               : SingleChildScrollView(
                                   scrollDirection: Axis.horizontal,
-                                  child: DataTable(
+                                  child: Card(
+  elevation: 2,
+  clipBehavior: Clip.antiAlias,
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(20),
+  ),
+  child: DataTable(
                                     columns: const [
-                                      DataColumn(label: Text('Employee ID')),
-                                      DataColumn(label: Text('Name')),
-                                      DataColumn(label: Text('Email')),
-                                      DataColumn(label: Text('Actions')),
+                                      DataColumn(
+  label: Text(
+    'Employee ID',
+    style: TextStyle(fontWeight: FontWeight.bold),
+  ),
+),
+DataColumn(
+  label: Text(
+    'Name',
+    style: TextStyle(fontWeight: FontWeight.bold),
+  ),
+),
+DataColumn(
+  label: Text(
+    'Email',
+    style: TextStyle(fontWeight: FontWeight.bold),
+  ),
+),
+DataColumn(
+  label: Text(
+    'Actions',
+    style: TextStyle(fontWeight: FontWeight.bold),
+  ),
+),
                                     ],
                                     rows: items
                                         .map(
@@ -117,6 +193,7 @@ final class TeachersScreen extends ConsumerWidget {
                                         .toList(),
                                   ),
                                 ),
+                              ),
                         ),
                 ),
               ),
@@ -139,7 +216,21 @@ final class TeachersScreen extends ConsumerWidget {
     await showDialog<void>(
       context: context,
       builder: (dialog) => AlertDialog(
-        title: Text(teacher == null ? 'Add Teacher' : 'Edit Teacher'),
+        title: Row(
+  children: [
+    Icon(
+      teacher == null
+          ? Icons.person_add_alt_1
+          : Icons.edit_outlined,
+    ),
+    const SizedBox(width: 10),
+    Text(
+      teacher == null
+          ? 'Add Teacher'
+          : 'Edit Teacher',
+    ),
+  ],
+),
         content: Form(
           key: key,
           child: Column(
@@ -150,18 +241,22 @@ final class TeachersScreen extends ConsumerWidget {
                 validator: (v) => v == null || v.trim().isEmpty
                     ? 'Employee ID is required.'
                     : null,
-                decoration: const InputDecoration(labelText: 'Employee ID'),
+                decoration: const InputDecoration(
+  labelText: 'Employee ID',
+  prefixIcon: Icon(Icons.badge_outlined),
+),
               ),
               TextFormField(
                 controller: name,
                 validator: (v) =>
                     v == null || v.trim().isEmpty ? 'Name is required.' : null,
-                decoration: const InputDecoration(labelText: 'Name'),
+                decoration: const InputDecoration(labelText: 'Name',prefixIcon: Icon(Icons.person_outline),),
+                
               ),
               TextFormField(
                 controller: email,
                 keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(labelText: 'Email'),
+                decoration: const InputDecoration(labelText: 'Email',prefixIcon: Icon(Icons.email_outlined),),
               ),
             ],
           ),
@@ -215,7 +310,13 @@ final class TeachersScreen extends ConsumerWidget {
     final ok = await showDialog<bool>(
       context: context,
       builder: (d) => AlertDialog(
-        title: const Text('Archive teacher?'),
+        title: const Row(
+  children: [
+    Icon(Icons.archive_outlined),
+    SizedBox(width: 10),
+    Text('Archive Teacher'),
+  ],
+),
         content: Text(
           '${teacher.fullName} will be hidden from active lists.',
         ),

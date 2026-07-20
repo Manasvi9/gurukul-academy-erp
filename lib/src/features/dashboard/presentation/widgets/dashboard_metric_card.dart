@@ -14,33 +14,61 @@ final class DashboardMetricCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Card(
+      elevation: 6,
+      shadowColor: Colors.black12,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(22),
+      ),
       child: InkWell(
+        mouseCursor: SystemMouseCursors.click,
+        borderRadius: BorderRadius.circular(22),
         onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
         child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(_iconForName(card.iconName), size: 28),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      card.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleMedium,
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(14),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      card.value,
-                      style: Theme.of(context).textTheme.bodyLarge,
+                    child: Icon(
+                      _iconForName(card.iconName),
+                      color: theme.colorScheme.primary,
+                      size: 28,
                     ),
-                  ],
+                  ),
+                  const Spacer(),
+                  if (onTap != null)
+                    Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      size: 16,
+                      color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                    ),
+                ],
+              ),
+              const Spacer(),
+              Text(
+                card.value,
+                style: theme.textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                card.title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
             ],
@@ -51,18 +79,21 @@ final class DashboardMetricCard extends StatelessWidget {
   }
 
   IconData _iconForName(String name) {
-    return switch (name) {
-      'groups' => Icons.groups_outlined,
-      'school' => Icons.school_outlined,
-      'payments' => Icons.payments_outlined,
-      'fact_check' => Icons.fact_check_outlined,
-      'assignment' => Icons.assignment_outlined,
-      'event' => Icons.event_outlined,
-      'pending_actions' => Icons.pending_actions_outlined,
+    return switch (name.toLowerCase().trim()) {
+      'students' => Icons.school_outlined,
+      'teachers' => Icons.person_outline,
+      'attendance' => Icons.fact_check_outlined,
+      'fees' => Icons.payments_outlined,
+      'homework' => Icons.assignment_outlined,
+      'exams' => Icons.quiz_outlined,
+      'transport' => Icons.directions_bus_outlined,
+      'salary' => Icons.currency_rupee_outlined,
+      'gallery' => Icons.photo_library_outlined,
       'notifications' => Icons.notifications_outlined,
-      'calendar_view_day' => Icons.calendar_view_day_outlined,
-      'grading' => Icons.grading_outlined,
-      'person' => Icons.person_outline,
+      'events' => Icons.event_outlined,
+      'leave' => Icons.event_busy_outlined,
+      'reports' => Icons.bar_chart_outlined,
+      'settings' => Icons.settings_outlined,
       _ => Icons.dashboard_outlined,
     };
   }

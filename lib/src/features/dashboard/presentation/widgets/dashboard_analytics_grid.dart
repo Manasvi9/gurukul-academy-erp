@@ -18,19 +18,20 @@ final class DashboardAnalyticsGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final columns = constraints.maxWidth >= 900
-            ? 3
-            : constraints.maxWidth >= 620
-                ? 2
-                : 1;
+        final columns = switch (constraints.maxWidth) {
+          >= 1400 => 4,
+          >= 1000 => 3,
+          >= 650 => 2,
+          _ => 1,
+        };
 
         return GridView.count(
           crossAxisCount: columns,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          mainAxisSpacing: AppSpacing.sm,
-          crossAxisSpacing: AppSpacing.sm,
-          childAspectRatio: columns == 1 ? 4.2 : 2.6,
+          mainAxisSpacing: AppSpacing.lg,
+          crossAxisSpacing: AppSpacing.lg,
+          childAspectRatio: columns == 1 ? 1.8 : 1.25,
           children: cards
               .map(
                 (card) => DashboardMetricCard(

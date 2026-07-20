@@ -1,16 +1,23 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
 import '../../students/presentation/providers/student_providers.dart';
 import '../domain/entities/exam.dart';
 import '../domain/entities/exam_mark.dart';
 import '../domain/entities/student_result.dart';
 import 'exam_providers.dart';
 
+/// Supported criteria for filtering processed student outcomes.
+enum ResultFilter { all, passed, failed }
+
+/// Supported sorting dimensions for order normalization in list metrics.
+enum ResultSort { rollNumber, name, percentage }
+
+/// Computes the marks for every subject in an exam, grouped by exam subject ID.
 final allMarksProvider =
-    FutureProvider.family<Map<String, List<ExamMark>>, String>(
+    FutureProvider.autoDispose.family<Map<String, List<ExamMark>>, String>(
         (ref, examId) async {
   final subjects = await ref.watch(examSubjectsProvider(examId).future);
   final marksMap = <String, List<ExamMark>>{};
+  
   for (final subject in subjects) {
     marksMap[subject.id] =
         await ref.watch(examMarksProvider(subject.id).future);
@@ -18,8 +25,9 @@ final allMarksProvider =
   return marksMap;
 });
 
+/// Calculates final results for every student in the selected examination.
 final studentResultsProvider =
-    FutureProvider.family<List<StudentResult>, Exam>((ref, exam) async {
+    FutureProvider.autoDispose.family<List<StudentResult>, Exam>((ref, exam) async {
   final subjects = await ref.watch(examSubjectsProvider(exam.id).future);
   final students = await ref.watch(
     studentListProvider(
@@ -34,31 +42,38 @@ final studentResultsProvider =
 
   final results = <StudentResult>[];
 
+  // Optimize subject-level lookup maps to avoid nested loop scan overhead
+  final subjectStudentMarksLookups = <String, Map<String, ExamMark>>{
+    for (final subject in subjects)
+      subject.id: {
+        for (final mark in (allMarks[subject.id] ?? <ExamMark>[]))
+          mark.studentId: mark,
+      },
+  };
+
   for (final student in students) {
     double totalObtained = 0;
     double totalMaximum = 0;
     bool isPass = true;
 
     for (final subject in subjects) {
-      final marks = allMarks[subject.id] ?? [];
-      final mark = marks.firstWhere(
-        (m) => m.studentId == student.id,
-        orElse: () => ExamMark(
-          studentId: student.id,
-          examSubjectId: subject.id,
-          marks: null,
-          isFinal: false,
-        ),
-      );
+      final marksLookup = subjectStudentMarksLookups[subject.id] ?? const {};
+      final mark = marksLookup[student.id] ??
+          ExamMark(
+            studentId: student.id,
+            examSubjectId: subject.id,
+            marks: null,
+            isFinal: false,
+          );
 
-      // Absent check
+      // Absent verification rule
       if (mark.isFinal && mark.marks == null) {
         isPass = false;
         totalMaximum += subject.maximumMarks;
         continue;
       }
 
-      // Pass marks check
+      // Performance validation rule
       if (mark.isFinal && mark.marks! < subject.passingMarks) {
         isPass = false;
       }
@@ -69,9 +84,6 @@ final studentResultsProvider =
       totalMaximum += subject.maximumMarks;
     }
 
-    final percentage =
-        totalMaximum > 0 ? (totalObtained / totalMaximum) * 100 : 0.0;
-
     results.add(
       StudentResult(
         studentId: student.id,
@@ -79,7 +91,7 @@ final studentResultsProvider =
         rollNumber: student.rollNumber ?? 0,
         totalObtained: totalObtained,
         totalMaximum: totalMaximum,
-        percentage: percentage,
+        percentage: _calculatePercentage(totalObtained, totalMaximum),
         isPass: isPass,
       ),
     );
@@ -87,5 +99,36 @@ final studentResultsProvider =
   return results;
 });
 
-final resultFilterProvider = StateProvider<String>((ref) => 'All');
-final resultSortProvider = StateProvider<String>((ref) => 'Roll Number');
+/// Tracks the active selection matching criteria filter for examination results view.
+final resultFilterProvider =
+    NotifierProvider<ResultFilterNotifier, ResultFilter>(
+  ResultFilterNotifier.new,
+);
+
+final resultSortProvider =
+    NotifierProvider<ResultSortNotifier, ResultSort>(
+  ResultSortNotifier.new,
+);
+
+class ResultFilterNotifier extends Notifier<ResultFilter> {
+  @override
+  ResultFilter build() => ResultFilter.all;
+
+  void set(ResultFilter value) {
+    state = value;
+  }
+}
+
+class ResultSortNotifier extends Notifier<ResultSort> {
+  @override
+  ResultSort build() => ResultSort.rollNumber;
+
+  void set(ResultSort value) {
+    state = value;
+  }
+}
+
+/// Helper expression yielding score performance values without mathematical undefined errors.
+double _calculatePercentage(double obtained, double maximum) {
+  return maximum == 0 ? 0.0 : (obtained / maximum) * 100.0;
+}

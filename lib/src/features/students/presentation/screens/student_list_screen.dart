@@ -34,25 +34,65 @@ final class StudentListScreen extends ConsumerWidget {
     );
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Student List')),
+      floatingActionButton: FloatingActionButton.extended(
+  onPressed: () => context.go('/students/add'),
+  icon: const Icon(Icons.person_add_alt_1),
+  label: const Text('Add Student'),
+),
+      appBar: AppBar(
+  elevation: 0,
+  centerTitle: false,
+  titleSpacing: 20,
+  title: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Text('Students'),
+      Text(
+        'Student List',
+        style: Theme.of(context).textTheme.bodySmall,
+      ),
+    ],
+  ),
+),
       body: ResponsivePage(
-        maxWidth: 900,
+        maxWidth: 1100,
         child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
+          padding: const EdgeInsets.all(AppSpacing.lg),
           child: AppAsyncView(
             value: students,
             data: (items) {
               if (items.isEmpty) {
                 return const AppEmptyView(
-                  title: 'No students',
-                  message: 'No active students were found in this section.',
+                  title: 'No Students Found',
+                  message: 'There are no active students in this class and section yet.',
                 );
               }
-              return StudentSummaryTable(
-                students: items,
-                onStudentTap: (student) =>
-                    context.go('/students/${student.id}'),
-              );
+              return Column(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+    Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.md),
+      child: Text(
+        '${items.length} Students',
+        style: Theme.of(context).textTheme.titleMedium,
+      ),
+    ),
+    Expanded(
+      child: Card(
+  elevation: 3,
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(20),
+  ),
+  clipBehavior: Clip.antiAlias,
+  child: StudentSummaryTable(
+    students: items,
+    onStudentTap: (student) =>
+        context.go('/students/${student.id}'),
+  ),
+),
+),
+],
+);
             },
           ),
         ),

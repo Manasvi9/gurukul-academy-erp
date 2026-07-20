@@ -17,7 +17,21 @@ final class HomeworkScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final homework = ref.watch(homeworkListProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Homework Management')),
+      appBar: AppBar(
+        elevation: 0,
+        centerTitle: false,
+        titleSpacing: 20,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Homework'),
+            Text(
+              'Assignments & class work',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        ),
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showForm(context, ref),
         icon: const Icon(Icons.add_task_outlined),
@@ -26,7 +40,7 @@ final class HomeworkScreen extends ConsumerWidget {
       body: ResponsivePage(
         maxWidth: 1050,
         child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
+          padding: const EdgeInsets.all(AppSpacing.lg),
           child: AppAsyncView(
             value: homework,
             data: (items) => items.isEmpty
@@ -37,29 +51,103 @@ final class HomeworkScreen extends ConsumerWidget {
                 : LayoutBuilder(
                     builder: (context, constraints) => constraints.maxWidth <
                             680
-                        ? ListView(
-                            children: items
-                                .map(
-                                  (item) => ListTile(
-                                    title: Text(item.subjectName),
-                                    subtitle: Text(
-                                      '${item.className} – ${item.sectionName}\nDue ${_dateLabel(item.dueDate)}',
-                                    ),
-                                    isThreeLine: true,
-                                    trailing: _HomeworkActions(
-                                      onEdit: () =>
-                                          _showForm(context, ref, item),
-                                      onDelete: () =>
-                                          _delete(context, ref, item),
-                                    ),
+                        ? ListView.separated(
+                            itemCount: items.length,
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(height: AppSpacing.md),
+                            itemBuilder: (context, index) {
+                              final item = items[index];
+
+                              return Card(
+                                elevation: 2,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(18),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(AppSpacing.md),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          CircleAvatar(
+                                            child: Text(
+                                              item.subjectName.characters.first,
+                                            ),
+                                          ),
+                                          const SizedBox(width: AppSpacing.md),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  item.subjectName,
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .titleMedium,
+                                                ),
+                                                Text(
+                                                  "${item.className} • ${item.sectionName}",
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodySmall,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Chip(
+                                            avatar: const Icon(
+                                              Icons.schedule,
+                                              size: 16,
+                                            ),
+                                            label: Text(
+                                              _dateLabel(item.dueDate),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: AppSpacing.md),
+                                      Text(
+                                        item.description,
+                                        maxLines: 3,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: AppSpacing.md),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          IconButton(
+                                            onPressed: () =>
+                                                _showForm(context, ref, item),
+                                            icon: const Icon(Icons.edit),
+                                          ),
+                                          IconButton(
+                                            onPressed: () =>
+                                                _delete(context, ref, item),
+                                            icon: const Icon(
+                                                Icons.delete_outline,
+                                              ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
                                   ),
-                                )
-                                .toList(),
+                                ),
+                              );
+                            },
                           )
                         : SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: DataTable(
-                              columns: const [
+                        scrollDirection: Axis.horizontal,
+                        child: DataTable(
+                          headingRowHeight: 60,
+                          dataRowMinHeight: 70,
+                          dataRowMaxHeight: 90,
+                          columnSpacing: 28,
+                          horizontalMargin: 20,
+                          columns: const [
                                 DataColumn(label: Text('Subject')),
                                 DataColumn(label: Text('Class / Section')),
                                 DataColumn(label: Text('Due date')),
@@ -145,7 +233,29 @@ final class HomeworkScreen extends ConsumerWidget {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          title: Text(item == null ? 'Create homework' : 'Edit homework'),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+          contentPadding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
+          actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          title: Row(
+            children: [
+              CircleAvatar(
+                radius: 18,
+                child: Icon(
+                  item == null ? Icons.add_task_outlined : Icons.edit_note,
+                  size: 18,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  item == null ? 'Create Homework' : 'Edit Homework',
+                ),
+              ),
+            ],
+          ),
           content: SizedBox(
             width: 480,
             child: Form(
@@ -156,7 +266,10 @@ final class HomeworkScreen extends ConsumerWidget {
                   children: [
                     DropdownButtonFormField<String>(
                       initialValue: classId,
-                      decoration: const InputDecoration(labelText: 'Class'),
+                      decoration: const InputDecoration(
+                        labelText: 'Class',
+                        prefixIcon: Icon(Icons.school_outlined),
+                      ),
                       items: classes
                           .map(
                             (schoolClass) => DropdownMenuItem(
@@ -182,8 +295,10 @@ final class HomeworkScreen extends ConsumerWidget {
                         }
                         return DropdownButtonFormField<String>(
                           initialValue: sectionId,
-                          decoration:
-                              const InputDecoration(labelText: 'Section'),
+                          decoration: const InputDecoration(
+                            labelText: 'Section',
+                            prefixIcon: Icon(Icons.groups_outlined),
+                          ),
                           items: sections
                               .map(
                                 (section) => DropdownMenuItem(
@@ -203,7 +318,10 @@ final class HomeworkScreen extends ConsumerWidget {
                     ),
                     DropdownButtonFormField<String>(
                       initialValue: subjectId,
-                      decoration: const InputDecoration(labelText: 'Subject'),
+                      decoration: const InputDecoration(
+                        labelText: 'Subject',
+                        prefixIcon: Icon(Icons.menu_book_outlined),
+                      ),
                       items: subjects
                           .map(
                             (subject) => DropdownMenuItem(
@@ -216,31 +334,50 @@ final class HomeworkScreen extends ConsumerWidget {
                           value == null ? 'Subject is required.' : null,
                       onChanged: (value) => setState(() => subjectId = value!),
                     ),
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: const Text('Due date'),
-                      subtitle: Text(_dateLabel(dueDate)),
-                      trailing: const Icon(Icons.calendar_today_outlined),
-                      onTap: () async {
-                        final picked = await showDatePicker(
-                          context: context,
-                          initialDate: dueDate,
-                          firstDate:
-                              DateTime.now().subtract(const Duration(days: 1)),
-                          lastDate:
-                              DateTime.now().add(const Duration(days: 730)),
-                        );
-                        if (picked != null) {
-                          setState(() => dueDate = picked);
-                        }
-                      },
+                    Card(
+                      elevation: 0,
+                      color:
+                          Theme.of(context).colorScheme.surfaceContainerHighest,
+                      child: ListTile(
+                        leading: const Icon(
+                          Icons.calendar_month_outlined,
+                        ),
+                        title: const Text("Due Date"),
+                        subtitle: Text(_dateLabel(dueDate)),
+                        trailing: FilledButton.tonal(
+                          onPressed: () async {
+                            final picked = await showDatePicker(
+                              context: context,
+                              initialDate: dueDate,
+                              firstDate: DateTime.now()
+                                  .subtract(const Duration(days: 1)),
+                              lastDate:
+                                  DateTime.now().add(const Duration(days: 730)),
+                            );
+
+                            if (picked != null) {
+                              setState(() {
+                                dueDate = picked;
+                              });
+                            }
+                          },
+                          child: const Text("Change"),
+                        ),
+                      ),
                     ),
                     TextFormField(
                       controller: description,
                       minLines: 3,
                       maxLines: 6,
-                      decoration:
-                          const InputDecoration(labelText: 'Description'),
+                      decoration: const InputDecoration(
+                        labelText: 'Homework Description',
+                        hintText: 'Enter homework or assignment details...',
+                        alignLabelWithHint: true,
+                        prefixIcon: Padding(
+                          padding: EdgeInsets.only(bottom: 70),
+                          child: Icon(Icons.description_outlined),
+                        ),
+                      ),
                       validator: (value) =>
                           value == null || value.trim().isEmpty
                               ? 'Description is required.'
@@ -252,7 +389,7 @@ final class HomeworkScreen extends ConsumerWidget {
             ),
           ),
           actions: [
-            TextButton(
+            OutlinedButton(
               onPressed: () => Navigator.pop(dialogContext),
               child: const Text('Cancel'),
             ),
@@ -284,7 +421,9 @@ final class HomeworkScreen extends ConsumerWidget {
                   }
                 }
               },
-              child: const Text('Save'),
+              child: Text(
+                item == null ? "Create Homework" : "Save Changes",
+              ),
             ),
           ],
         ),
@@ -300,18 +439,30 @@ final class HomeworkScreen extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete homework?'),
+        title: const Row(
+          children: [
+            Icon(
+              Icons.warning_amber_rounded,
+              color: Colors.red,
+            ),
+            SizedBox(width: 10),
+            Text("Delete Homework"),
+          ],
+        ),
         content: Text(
           'Delete ${item.subjectName} homework for ${item.className} – ${item.sectionName}?',
         ),
         actions: [
-          TextButton(
+          OutlinedButton(
             onPressed: () => Navigator.pop(dialogContext, false),
             child: const Text('Cancel'),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Delete'),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: const Text("Delete"),
           ),
         ],
       ),

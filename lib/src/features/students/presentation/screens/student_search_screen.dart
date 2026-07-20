@@ -17,18 +17,42 @@ final class StudentSearchScreen extends ConsumerWidget {
     final searchResults = ref.watch(studentSearchControllerProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Search Student')),
+      appBar: AppBar(
+        elevation: 0,
+        centerTitle: false,
+        titleSpacing: 20,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Search Students'),
+            Text(
+              'Find students quickly',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => context.go('/students/add'),
+        icon: const Icon(Icons.person_add_alt_1),
+        label: const Text('Add Student'),
+      ),
       body: ResponsivePage(
-        maxWidth: 900,
+        maxWidth: 1100,
         child: ListView(
-          padding: const EdgeInsets.all(AppSpacing.md),
+          padding: const EdgeInsets.all(AppSpacing.lg),
           children: [
             TextField(
               autofocus: true,
               textInputAction: TextInputAction.search,
-              decoration: const InputDecoration(
-                labelText: 'Name, SR number, parent name or mobile',
-                prefixIcon: Icon(Icons.search),
+              decoration: InputDecoration(
+                hintText: 'Search by name, SR number, parent or mobile',
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: const Icon(Icons.manage_search_outlined),
+                filled: true,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                ),
               ),
               onChanged: (value) {
                 ref
@@ -42,14 +66,23 @@ final class StudentSearchScreen extends ConsumerWidget {
               data: (students) {
                 if (students.isEmpty) {
                   return const AppEmptyView(
-                    title: 'No students found',
-                    message: 'Search by student, SR number, parent, or mobile.',
+                    title: 'No Students Found',
+                    message:
+                        'Search using student name, SR number, parent name or mobile number.',
                   );
                 }
-                return StudentSummaryTable(
-                  students: students,
-                  onStudentTap: (student) =>
-                      context.go('/students/${student.id}'),
+
+                return Card(
+                  elevation: 3,
+                  clipBehavior: Clip.antiAlias,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: StudentSummaryTable(
+                    students: students,
+                    onStudentTap: (student) =>
+                        context.go('/students/${student.id}'),
+                  ),
                 );
               },
             ),

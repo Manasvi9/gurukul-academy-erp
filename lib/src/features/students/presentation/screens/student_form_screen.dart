@@ -80,72 +80,115 @@ final class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.isEditing ? 'Edit Student' : 'Add Student'),
+        elevation: 0,
+        centerTitle: false,
+        titleSpacing: 20,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.isEditing ? 'Edit Student' : 'Add Student',
+            ),
+            Text(
+              'Student Registration',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        ),
       ),
       body: ResponsivePage(
-        maxWidth: 760,
-        child: Form(
-          key: _formKey,
-          child: Stepper(
-            type: StepperType.vertical,
-            currentStep: _currentStep,
-            onStepContinue: () {
-              if (_currentStep < 4) {
-                setState(() => _currentStep += 1);
-              }
-            },
-            onStepCancel: () {
-              if (_currentStep > 0) {
-                setState(() => _currentStep -= 1);
-              }
-            },
-            controlsBuilder: (context, details) {
-              final isLast = details.currentStep == 4;
-              return Padding(
-                padding: const EdgeInsets.only(top: AppSpacing.md),
-                child: Row(
-                  children: [
-                    FilledButton(
-                      onPressed: isSaving
-                          ? null
-                          : isLast
-                              ? _save
-                              : details.onStepContinue,
-                      child: Text(isLast ? 'Save Student' : 'Continue'),
-                    ),
-                    const SizedBox(width: AppSpacing.sm),
-                    if (details.currentStep > 0)
-                      TextButton(
-                        onPressed: isSaving ? null : details.onStepCancel,
-                        child: const Text('Back'),
+        maxWidth: 900,
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Card(
+            elevation: 3,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              child: Form(
+                key: _formKey,
+                child: Stepper(
+                  type: StepperType.vertical,
+                  currentStep: _currentStep,
+                  onStepContinue: () {
+                    if (_currentStep < 4) {
+                      setState(() => _currentStep += 1);
+                    }
+                  },
+                  onStepCancel: () {
+                    if (_currentStep > 0) {
+                      setState(() => _currentStep -= 1);
+                    }
+                  },
+                  controlsBuilder: (context, details) {
+                    final isLast = details.currentStep == 4;
+                    return Padding(
+                      padding: const EdgeInsets.only(top: AppSpacing.md),
+                      child: Row(
+                        children: [
+                          FilledButton(
+                            onPressed: isSaving
+                                ? null
+                                : isLast
+                                    ? _save
+                                    : details.onStepContinue,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  isLast ? Icons.save_outlined : Icons.arrow_forward,
+                                  size: 18,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(isLast ? 'Save Student' : 'Next'),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: AppSpacing.sm),
+                          if (details.currentStep > 0)
+                            TextButton(
+                              onPressed: isSaving ? null : details.onStepCancel,
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.arrow_back, size: 18),
+                                  SizedBox(width: 6),
+                                  Text('Back'),
+                                ],
+                              ),
+                            ),
+                        ],
                       ),
+                    );
+                  },
+                  steps: [
+                    Step(
+                      title: const Text('Student Details'),
+                      content: _studentDetailsStep(),
+                      isActive: true,
+                    ),
+                    Step(
+                      title: const Text('Parent Details'),
+                      content: _parentDetailsStep(),
+                    ),
+                    Step(
+                      title: const Text('Academic Details'),
+                      content: _academicDetailsStep(),
+                    ),
+                    Step(
+                      title: const Text('Fees'),
+                      content: _feesStep(),
+                    ),
+                    Step(
+                      title: const Text('Transport & Review'),
+                      content: _transportStep(),
+                    ),
                   ],
                 ),
-              );
-            },
-            steps: [
-              Step(
-                title: const Text('Student Details'),
-                content: _studentDetailsStep(),
-                isActive: true,
               ),
-              Step(
-                title: const Text('Parent Details'),
-                content: _parentDetailsStep(),
-              ),
-              Step(
-                title: const Text('Academic Details'),
-                content: _academicDetailsStep(),
-              ),
-              Step(
-                title: const Text('Fees'),
-                content: _feesStep(),
-              ),
-              Step(
-                title: const Text('Transport & Review'),
-                content: _transportStep(),
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -158,9 +201,12 @@ final class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
         TextFormField(
           controller: _srController,
           validator: Validators.srNumber,
-          decoration: const InputDecoration(labelText: 'SR Number'),
+          decoration: const InputDecoration(
+            labelText: 'SR Number',
+            prefixIcon: Icon(Icons.badge_outlined),
+          ),
         ),
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: AppSpacing.lg),
         _DateField(
           label: 'Admission Date',
           value: _admissionDate,
@@ -173,7 +219,10 @@ final class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
             value,
             fieldName: 'Student name',
           ),
-          decoration: const InputDecoration(labelText: 'Student Name'),
+          decoration: const InputDecoration(
+            labelText: 'Student Name',
+            prefixIcon: Icon(Icons.person_outline),
+          ),
         ),
         const SizedBox(height: AppSpacing.md),
         DropdownButtonFormField<StudentGender>(
@@ -208,7 +257,10 @@ final class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
             value,
             fieldName: 'Father name',
           ),
-          decoration: const InputDecoration(labelText: 'Father Name'),
+          decoration: const InputDecoration(
+            labelText: 'Father Name',
+            prefixIcon: Icon(Icons.man_outlined),
+          ),
         ),
         const SizedBox(height: AppSpacing.md),
         TextFormField(
@@ -217,14 +269,20 @@ final class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
             value,
             fieldName: 'Mother name',
           ),
-          decoration: const InputDecoration(labelText: 'Mother Name'),
+          decoration: const InputDecoration(
+            labelText: 'Mother Name',
+            prefixIcon: Icon(Icons.woman_outlined),
+          ),
         ),
         const SizedBox(height: AppSpacing.md),
         TextFormField(
           controller: _mobileController,
           validator: Validators.mobileNumber,
           keyboardType: TextInputType.phone,
-          decoration: const InputDecoration(labelText: 'Parent Mobile Number'),
+          decoration: const InputDecoration(
+            labelText: 'Parent Mobile Number',
+            prefixIcon: Icon(Icons.phone_outlined),
+          ),
         ),
       ],
     );
@@ -309,8 +367,16 @@ final class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
         else
           AppAsyncView(
             value: fee,
-            data: (value) => Text(
-              'Class fee: ${value.totalFee.toStringAsFixed(0)}',
+            data: (value) => Card(
+              child: ListTile(
+                leading: const CircleAvatar(
+                  child: Icon(Icons.payments_outlined),
+                ),
+                title: const Text('Class Fee'),
+                subtitle: Text(
+                  '₹ ${value.totalFee.toStringAsFixed(0)}',
+                ),
+              ),
             ),
           ),
         const SizedBox(height: AppSpacing.md),
@@ -318,7 +384,10 @@ final class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
           controller: _discountController,
           keyboardType: TextInputType.number,
           validator: _discountValidator,
-          decoration: const InputDecoration(labelText: 'Scholarship/Discount'),
+          decoration: const InputDecoration(
+            labelText: 'Scholarship/Discount',
+            prefixIcon: Icon(Icons.savings_outlined),
+          ),
         ),
       ],
     );
@@ -355,9 +424,15 @@ final class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
             ),
           ),
         const SizedBox(height: AppSpacing.md),
-        Text(
-          'Review details before saving. Fees and transport calculations are validated by the backend.',
-          style: Theme.of(context).textTheme.bodyMedium,
+        Card(
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          child: const ListTile(
+            leading: Icon(Icons.info_outline),
+            title: Text('Review'),
+            subtitle: Text(
+              'Please verify all information before saving the student.',
+            ),
+          ),
         ),
       ],
     );
@@ -538,6 +613,7 @@ final class _DateField extends StatelessWidget {
       ),
       decoration: InputDecoration(
         labelText: label,
+        prefixIcon: const Icon(Icons.event_outlined),
         suffixIcon: const Icon(Icons.calendar_month_outlined),
       ),
       onTap: () async {

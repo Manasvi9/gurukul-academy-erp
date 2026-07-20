@@ -83,20 +83,30 @@ final class _ExamFormScreenState extends ConsumerState<ExamFormScreen> {
     final academicYearsAsync = ref.watch(academicYearsProvider);
 
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        title:
-            Text(widget.isEditing ? 'Edit Examination' : 'Create Examination'),
+        elevation: 0,
+        centerTitle: false,
+        titleSpacing: 20,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.isEditing ? "Edit Examination" : "Create Examination",
+            ),
+            Text(
+              "Exam schedule & configuration",
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        ),
       ),
       body: ResponsivePage(
-        maxWidth: 600,
+        maxWidth: 720,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(AppSpacing.md),
+          padding: const EdgeInsets.all(AppSpacing.lg),
           child: Form(
             key: _formKey,
             child: Card(
-              color: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
                 side: BorderSide(color: Colors.grey.shade200, width: 1.5),
@@ -106,36 +116,6 @@ final class _ExamFormScreenState extends ConsumerState<ExamFormScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Header accent (Soft Peach Card)
-                    Container(
-                      padding: const EdgeInsets.all(AppSpacing.md),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFFECE0), // Soft peach bg
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            widget.isEditing
-                                ? Icons.edit_note
-                                : Icons.add_circle_outline,
-                            color: const Color(0xFF8B4F30), // Dark peach/brown
-                          ),
-                          const SizedBox(width: AppSpacing.sm),
-                          Text(
-                            widget.isEditing
-                                ? 'Modify Examination details'
-                                : 'Setup a new examination',
-                            style: const TextStyle(
-                              color: Color(0xFF8B4F30),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-
                     // Exam Name
                     TextFormField(
                       controller: _nameController,
@@ -322,7 +302,10 @@ final class _ExamFormScreenState extends ConsumerState<ExamFormScreen> {
                       controller: _descriptionController,
                       maxLines: 3,
                       decoration: const InputDecoration(
-                        labelText: 'Description (Optional)',
+                        labelText: 'Exam Instructions',
+                        hintText:
+                            'Add notes, instructions or additional information...',
+                        alignLabelWithHint: true,
                         prefixIcon: Icon(Icons.description),
                         fillColor: Color(0xFFF9F9F9),
                       ),
@@ -367,10 +350,8 @@ final class _ExamFormScreenState extends ConsumerState<ExamFormScreen> {
                         Expanded(
                           child: FilledButton(
                             style: FilledButton.styleFrom(
-                              backgroundColor: const Color(
-                                  0xFFFFECE0,), // Soft peach button color
-                              foregroundColor: const Color(
-                                  0xFF8B4F30,), // Dark peach/brown text
+                              backgroundColor: const Color(0xFFFFECE0),
+                              foregroundColor: const Color(0xFF8B4F30),
                               side: const BorderSide(color: Color(0xFFFFCCAC)),
                             ),
                             onPressed: _isSaving ? null : _save,
@@ -381,12 +362,18 @@ final class _ExamFormScreenState extends ConsumerState<ExamFormScreen> {
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
                                       valueColor: AlwaysStoppedAnimation(
-                                          Color(0xFF8B4F30),),
+                                        Color(0xFF8B4F30),
+                                      ),
                                     ),
                                   )
-                                : const Text('Save',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),),
+                                : Text(
+                                    widget.isEditing
+                                        ? "Save Changes"
+                                        : "Create Examination",
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                           ),
                         ),
                       ],
@@ -436,7 +423,8 @@ final class _ExamFormScreenState extends ConsumerState<ExamFormScreen> {
     if (_endDate != null && _endDate!.isBefore(_startDate!)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('End Date must be on or after Start Date'),),
+          content: Text('End Date must be on or after Start Date'),
+        ),
       );
       return;
     }
@@ -467,16 +455,24 @@ final class _ExamFormScreenState extends ConsumerState<ExamFormScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text(widget.isEditing
+            content: Text(
+              widget.isEditing
                   ? 'Examination updated successfully'
-                  : 'Examination created successfully',),),
+                  : 'Examination created successfully',
+            ),
+          ),
         );
         context.pop();
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error saving examination: $e')),
+          SnackBar(
+            behavior: SnackBarBehavior.floating,
+            content: Text(
+              'Unable to save examination.\n$e',
+            ),
+          ),
         );
       }
     } finally {

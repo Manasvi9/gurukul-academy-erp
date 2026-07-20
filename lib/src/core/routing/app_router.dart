@@ -9,6 +9,7 @@ import '../../features/authentication/presentation/providers/auth_providers.dart
 import '../../features/authentication/presentation/providers/auth_state.dart';
 import '../../features/authentication/presentation/screens/change_password_screen.dart';
 import '../../features/authentication/presentation/screens/login_screen.dart';
+import '../../features/authentication/presentation/screens/splash_screen.dart';
 import '../../features/certificates/presentation/screens/certificate_details_screen.dart';
 import '../../features/certificates/presentation/screens/certificates_list_screen.dart';
 import '../../features/certificates/presentation/screens/generate_certificate_screen.dart';
@@ -46,12 +47,13 @@ import 'app_routes.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
-    initialLocation: AppRoute.login.path,
+    initialLocation: AppRoute.splash.path,
     refreshListenable: ref.watch(authRouteRefreshProvider),
     redirect: (context, state) {
       final authState = ref.read(authControllerProvider);
       final location = state.uri.path;
       final isLoginRoute = location == AppRoute.login.path;
+      final isSplashRoute = location == AppRoute.splash.path;
       final isChangePasswordRoute = location == AppRoute.changePassword.path;
 
       if (authState.status == AuthStatus.initial ||
@@ -60,16 +62,20 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       }
 
       if (!authState.isAuthenticated) {
-        return isLoginRoute ? null : AppRoute.login.path;
-      }
+  if (isSplashRoute || isLoginRoute) {
+    return null;
+  }
+
+  return AppRoute.login.path;
+}
 
       if (authState.mustChangePassword) {
         return isChangePasswordRoute ? null : AppRoute.changePassword.path;
       }
 
-      if (isLoginRoute || isChangePasswordRoute) {
-        return _dashboardPathForRole(authState.user!.role);
-      }
+      if (isSplashRoute || isLoginRoute || isChangePasswordRoute) {
+  return _dashboardPathForRole(authState.user!.role);
+}
 
       final expectedRole = _roleForDashboardPath(location);
       if (expectedRole != null && expectedRole != authState.user!.role) {
@@ -79,6 +85,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
+      GoRoute(
+  path: AppRoute.splash.path,
+name: AppRoute.splash.name,
+  builder: (context, state) => const SplashScreen(),
+),
       GoRoute(
         path: AppRoute.login.path,
         name: AppRoute.login.name,

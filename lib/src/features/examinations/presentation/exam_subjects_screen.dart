@@ -12,8 +12,11 @@ import '../domain/entities/exam_subject.dart';
 import 'exam_providers.dart';
 
 final class ExamSubjectsScreen extends ConsumerStatefulWidget {
-  const ExamSubjectsScreen(
-      {required this.examId, required this.exam, super.key,});
+  const ExamSubjectsScreen({
+    required this.examId,
+    required this.exam,
+    super.key,
+  });
   final String examId;
   final Exam exam;
 
@@ -30,7 +33,19 @@ final class _ExamSubjectsScreenState extends ConsumerState<ExamSubjectsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Exam Subjects'),
+        elevation: 0,
+        centerTitle: false,
+        titleSpacing: 20,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text("Exam Subjects"),
+            Text(
+              widget.exam.name,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.assessment),
@@ -44,24 +59,29 @@ final class _ExamSubjectsScreenState extends ConsumerState<ExamSubjectsScreen> {
       body: Column(
         children: [
           if (isPublished)
-            Container(
-              color: Colors.amber.withValues(alpha: 0.2),
-              padding: const EdgeInsets.all(AppSpacing.sm),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.lock, color: Colors.amber),
-                  SizedBox(width: AppSpacing.sm),
-                  Text(
-                    'Results Published - Editing Locked',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ],
+            Material(
+              color: Theme.of(context).colorScheme.secondaryContainer,
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.lock_outline,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      "Results Published • Editing Locked",
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                  ],
+                ),
               ),
             ),
           Expanded(
             child: ResponsivePage(
-              maxWidth: 800,
+              maxWidth: 950,
               child: AppAsyncView<List<ExamSubject>>(
                 value: examSubjectsAsync,
                 data: (subjects) {
@@ -69,8 +89,28 @@ final class _ExamSubjectsScreenState extends ConsumerState<ExamSubjectsScreen> {
                     value: academicSubjectsAsync,
                     data: (allSubjects) {
                       if (subjects.isEmpty) {
-                        return const Center(
-                            child: Text('No subjects added yet.'),);
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.menu_book_outlined,
+                                size: 72,
+                                color: Theme.of(context).colorScheme.outline,
+                              ),
+                              const SizedBox(height: AppSpacing.md),
+                              Text(
+                                "No Subjects Added",
+                                style: Theme.of(context).textTheme.titleLarge,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                "Add subjects to begin entering marks.",
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                            ],
+                          ),
+                        );
                       }
                       return ListView.builder(
                         itemCount: subjects.length,
@@ -89,36 +129,90 @@ final class _ExamSubjectsScreenState extends ConsumerState<ExamSubjectsScreen> {
                           );
                           return Card(
                             margin: const EdgeInsets.all(AppSpacing.sm),
-                            child: ListTile(
-                              title: Text(academicSubject.name),
-                              subtitle: Text(
-                                'Max: ${subject.maximumMarks}, Pass: ${subject.passingMarks}',
-                              ),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
+                            child: Padding(
+                              padding: const EdgeInsets.all(AppSpacing.md),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  if (!isPublished) ...[
-                                    IconButton(
-                                      icon: const Icon(Icons.edit),
-                                      onPressed: () =>
-                                          _showSubjectDialog(subject: subject),
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(Icons.delete),
-                                      onPressed: () =>
-                                          _deleteSubject(subject.id),
-                                    ),
-                                  ],
-                                  IconButton(
-                                    icon: const Icon(Icons.edit_note),
-                                    onPressed: () => context.push(
-                                      '/exams/${widget.examId}/subjects/${subject.id}/marks',
-                                      extra: {
-                                        'exam': widget.exam,
-                                        'subject': subject,
-                                      },
-                                    ),
+                                  Row(
+                                    children: [
+                                      CircleAvatar(
+                                        child: Text(
+                                          academicSubject.name.characters.first,
+                                        ),
+                                      ),
+                                      const SizedBox(width: AppSpacing.md),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              academicSubject.name,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .titleMedium,
+                                            ),
+                                            Text(
+                                              academicSubject.code ?? "",
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodySmall,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      FilledButton.tonalIcon(
+                                        onPressed: () => context.push(
+                                          '/exams/${widget.examId}/subjects/${subject.id}/marks',
+                                          extra: {
+                                            'exam': widget.exam,
+                                            'subject': subject,
+                                          },
+                                        ),
+                                        icon: const Icon(Icons.edit_note),
+                                        label: const Text("Marks"),
+                                      ),
+                                    ],
                                   ),
+                                  const SizedBox(height: AppSpacing.md),
+                                  Wrap(
+                                    spacing: 8,
+                                    children: [
+                                      Chip(
+                                        avatar: const Icon(Icons.flag),
+                                        label: Text(
+                                          "Max ${subject.maximumMarks}",
+                                        ),
+                                      ),
+                                      Chip(
+                                        avatar: const Icon(Icons.check),
+                                        label: Text(
+                                          "Pass ${subject.passingMarks}",
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  if (!isPublished)
+                                    Align(
+                                      alignment: Alignment.centerRight,
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          IconButton(
+                                            onPressed: () => _showSubjectDialog(
+                                                subject: subject,),
+                                            icon: const Icon(Icons.edit),
+                                          ),
+                                          IconButton(
+                                            onPressed: () =>
+                                                _deleteSubject(subject.id),
+                                            icon: const Icon(
+                                                Icons.delete_outline,),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                 ],
                               ),
                             ),
@@ -135,8 +229,9 @@ final class _ExamSubjectsScreenState extends ConsumerState<ExamSubjectsScreen> {
       ),
       floatingActionButton: isPublished
           ? null
-          : FloatingActionButton(
-              child: const Icon(Icons.add),
+          : FloatingActionButton.extended(
+              icon: const Icon(Icons.add),
+              label: const Text("Add Subject"),
               onPressed: () => _showSubjectDialog(),
             ),
     );
@@ -146,7 +241,16 @@ final class _ExamSubjectsScreenState extends ConsumerState<ExamSubjectsScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Subject'),
+        title: const Row(
+          children: [
+            Icon(
+              Icons.warning_amber_rounded,
+              color: Colors.red,
+            ),
+            SizedBox(width: 10),
+            Text("Delete Subject"),
+          ],
+        ),
         content: const Text('Are you sure you want to delete this subject?'),
         actions: [
           TextButton(
@@ -182,6 +286,9 @@ final class _ExamSubjectsScreenState extends ConsumerState<ExamSubjectsScreen> {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(22),
+          ),
           title: Text(subject == null ? 'Add Subject' : 'Edit Subject'),
           content: Form(
             key: formKey,
@@ -199,12 +306,18 @@ final class _ExamSubjectsScreenState extends ConsumerState<ExamSubjectsScreen> {
                       )
                       .toList(),
                   onChanged: (value) => selectedSubjectId = value,
-                  decoration: const InputDecoration(labelText: 'Subject'),
+                  decoration: const InputDecoration(
+                    labelText: 'Subject',
+                    prefixIcon: Icon(Icons.menu_book_outlined),
+                  ),
                   validator: (value) => value == null ? 'Required' : null,
                 ),
                 TextFormField(
                   controller: maxMarksController,
-                  decoration: const InputDecoration(labelText: 'Maximum Marks'),
+                  decoration: const InputDecoration(
+                    labelText: 'Maximum Marks',
+                    prefixIcon: Icon(Icons.workspace_premium_outlined),
+                  ),
                   keyboardType: TextInputType.number,
                   validator: (value) => (double.tryParse(value ?? '') ?? 0) <= 0
                       ? 'Invalid marks'
@@ -212,17 +325,21 @@ final class _ExamSubjectsScreenState extends ConsumerState<ExamSubjectsScreen> {
                 ),
                 TextFormField(
                   controller: passMarksController,
-                  decoration: const InputDecoration(labelText: 'Passing Marks'),
+                  decoration: const InputDecoration(
+                    labelText: 'Passing Marks',
+                    prefixIcon: Icon(Icons.check_circle_outline),
+                  ),
                   keyboardType: TextInputType.number,
-                  validator: (value) => (double.tryParse(value ?? '') ?? -1) < 0
-                      ? 'Invalid marks'
-                      : null,
+                  validator: (value) =>
+                      (double.tryParse(value ?? '') ?? -1) < 0
+                          ? 'Invalid marks'
+                          : null,
                 ),
               ],
             ),
           ),
           actions: [
-            TextButton(
+            OutlinedButton(
               onPressed: () => dialogContext.pop(),
               child: const Text('Cancel'),
             ),
@@ -254,7 +371,9 @@ final class _ExamSubjectsScreenState extends ConsumerState<ExamSubjectsScreen> {
                   dialogContext.pop();
                 }
               },
-              child: const Text('Save'),
+              child: Text(
+                subject == null ? "Add Subject" : "Save Changes",
+              ),
             ),
           ],
         );

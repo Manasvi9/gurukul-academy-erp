@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
 import '../../../app/bootstrap/app_bootstrap.dart';
 import '../data/exam_repository.dart';
 import '../domain/entities/exam.dart';
@@ -10,10 +9,35 @@ final examRepositoryProvider = Provider(
   (ref) => SupabaseExamRepository(ref.watch(supabaseClientProvider)),
 );
 
-final examSearchQueryProvider = StateProvider<String>((ref) => '');
-final examAcademicYearFilterProvider = StateProvider<String?>((ref) => null);
+final examSearchQueryProvider =
+    NotifierProvider<StringNotifier, String>(
+  StringNotifier.new,
+);
 
-final examsProvider = FutureProvider<List<Exam>>((ref) {
+final examAcademicYearFilterProvider =
+    NotifierProvider<NullableStringNotifier, String?>(
+  NullableStringNotifier.new,
+);
+
+class StringNotifier extends Notifier<String> {
+  @override
+  String build() => '';
+
+  void set(String value) {
+    state = value;
+  }
+}
+
+class NullableStringNotifier extends Notifier<String?> {
+  @override
+  String? build() => null;
+
+  void set(String? value) {
+    state = value;
+  }
+}
+
+final examsProvider = FutureProvider.autoDispose<List<Exam>>((ref) {
   final query = ref.watch(examSearchQueryProvider);
   final academicYearId = ref.watch(examAcademicYearFilterProvider);
   return ref.watch(examRepositoryProvider).list(
@@ -67,7 +91,7 @@ final examDeleteProvider = Provider<Future<void> Function(String)>((ref) {
 });
 
 final examSubjectsProvider =
-    FutureProvider.family<List<ExamSubject>, String>((ref, examId) {
+    FutureProvider.family.autoDispose<List<ExamSubject>, String>((ref, examId) {
   return ref.watch(examRepositoryProvider).listSubjects(examId);
 });
 

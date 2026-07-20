@@ -1,4 +1,5 @@
 enum AppRoute {
+  splash('/'),
   login('/login'),
   changePassword('/change-password'),
   adminDashboard('/admin-dashboard'),

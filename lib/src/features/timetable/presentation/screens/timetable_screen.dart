@@ -25,7 +25,19 @@ class TimetableScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Timetable'),
+        elevation: 0,
+        centerTitle: false,
+        titleSpacing: 20,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Timetable'),
+            Text(
+              'Weekly schedules and period assignments',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        ),
       ),
       floatingActionButton: canManage
           ? FloatingActionButton.extended(
@@ -35,38 +47,91 @@ class TimetableScreen extends ConsumerWidget {
             )
           : null,
       body: ResponsivePage(
-        maxWidth: 1000,
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          child: Column(
-            children: [
-              if (canManage || role == AuthRole.teacher)
-                _buildFilters(context, ref, canManage),
-              const SizedBox(height: AppSpacing.md),
-              Expanded(
-                child: AppAsyncView(
-                  value: entries,
-                  data: (items) => items.isEmpty
-                      ? const AppEmptyView(
-                          title: 'No timetable entries',
-                          message: 'No periods match the current view.',
-                        )
-                      : ListView.builder(
-                          itemCount: items.length,
-                          itemBuilder: (context, index) {
-                            final entry = items[index];
-                            return _TimetableCard(
-                              entry: entry,
-                              canManage: canManage,
-                            );
-                          },
+        maxWidth: 950,
+        child: AppAsyncView(
+          value: entries,
+          data: (items) {
+            final activeClasses = ref.watch(activeAcademicClassesProvider).asData?.value.length ?? 0;
+            final activeTeachers = ref.watch(timetableTeachersProvider).asData?.value.length ?? 0;
+
+            return RefreshIndicator(
+              onRefresh: () async {
+                ref.invalidate(timetableEntriesProvider);
+                await ref.read(timetableEntriesProvider.future);
+              },
+              child: ListView.separated(
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                itemCount: items.isEmpty ? 2 : items.length + 2,
+                separatorBuilder: (_, index) => const SizedBox(height: AppSpacing.md),
+                itemBuilder: (context, index) {
+                  if (index == 0) {
+                    return Card(
+                      elevation: 0,
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(AppSpacing.lg),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            _buildStatItem(context, "Total Periods", "${items.length}"),
+                            _buildStatItem(context, "Active Classes", "$activeClasses"),
+                            _buildStatItem(context, "Teachers Roster", "$activeTeachers"),
+                          ],
                         ),
-                ),
+                      ),
+                    );
+                  }
+
+                  if (index == 1) {
+                    if (canManage || role == AuthRole.teacher) {
+                      return _buildFilters(context, ref, canManage);
+                    }
+                    return const SizedBox.shrink();
+                  }
+
+                  if (items.isEmpty) {
+                    return const AppEmptyView(
+                      title: 'No Timetable Available',
+                      message: 'No periods match the selected filters. Change criteria or create a row entry.',
+                    );
+                  }
+
+                  final entry = items[index - 2];
+                  return _TimetableCard(
+                    entry: entry,
+                    canManage: canManage,
+                  );
+                },
               ),
-            ],
-          ),
+            );
+          },
         ),
       ),
+    );
+  }
+
+  Widget _buildStatItem(BuildContext context, String label, String value) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          value,
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
+              ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
+              ),
+        ),
+      ],
     );
   }
 
@@ -79,8 +144,14 @@ class TimetableScreen extends ConsumerWidget {
     final teachers = ref.watch(timetableTeachersProvider);
 
     return Card(
+      elevation: 0,
+      color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.sm),
+        padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(
           children: [
             Row(
@@ -90,8 +161,10 @@ class TimetableScreen extends ConsumerWidget {
                     child: classes.when(
                       data: (items) => DropdownButtonFormField<String?>(
                         initialValue: ref.watch(timetableClassFilterProvider),
-                        decoration:
-                            const InputDecoration(labelText: 'Filter Class'),
+                        decoration: const InputDecoration(
+                          labelText: 'Filter Class',
+                          prefixIcon: Icon(Icons.school_outlined),
+                        ),
                         items: [
                           const DropdownMenuItem(
                             value: null,
@@ -105,12 +178,8 @@ class TimetableScreen extends ConsumerWidget {
                           ),
                         ],
                         onChanged: (value) {
-                          ref
-                              .read(timetableClassFilterProvider.notifier)
-                              .set(value);
-                          ref
-                              .read(timetableSectionFilterProvider.notifier)
-                              .set(null);
+                          ref.read(timetableClassFilterProvider.notifier).set(value);
+                          ref.read(timetableSectionFilterProvider.notifier).set(null);
                         },
                       ),
                       loading: () => const LinearProgressIndicator(),
@@ -121,8 +190,7 @@ class TimetableScreen extends ConsumerWidget {
                   Expanded(
                     child: ref.watch(academicSectionsProvider).when(
                           data: (items) {
-                            final classId =
-                                ref.watch(timetableClassFilterProvider);
+                            final classId = ref.watch(timetableClassFilterProvider);
                             final filtered = classId == null
                                 ? <DropdownMenuItem<String?>>[]
                                 : items
@@ -135,10 +203,10 @@ class TimetableScreen extends ConsumerWidget {
                                     )
                                     .toList();
                             return DropdownButtonFormField<String?>(
-                              initialValue:
-                                  ref.watch(timetableSectionFilterProvider),
+                              initialValue: ref.watch(timetableSectionFilterProvider),
                               decoration: const InputDecoration(
                                 labelText: 'Filter Section',
+                                prefixIcon: Icon(Icons.layers_outlined),
                               ),
                               items: [
                                 const DropdownMenuItem(
@@ -149,11 +217,7 @@ class TimetableScreen extends ConsumerWidget {
                               ],
                               onChanged: classId == null
                                   ? null
-                                  : (value) => ref
-                                      .read(
-                                        timetableSectionFilterProvider.notifier,
-                                      )
-                                      .set(value),
+                                  : (value) => ref.read(timetableSectionFilterProvider.notifier).set(value),
                             );
                           },
                           loading: () => const LinearProgressIndicator(),
@@ -167,8 +231,10 @@ class TimetableScreen extends ConsumerWidget {
                     child: teachers.when(
                       data: (items) => DropdownButtonFormField<String?>(
                         initialValue: ref.watch(timetableTeacherFilterProvider),
-                        decoration:
-                            const InputDecoration(labelText: 'Filter Teacher'),
+                        decoration: const InputDecoration(
+                          labelText: 'Filter Teacher',
+                          prefixIcon: Icon(Icons.person_outline),
+                        ),
                         items: [
                           const DropdownMenuItem(
                             value: null,
@@ -181,9 +247,7 @@ class TimetableScreen extends ConsumerWidget {
                             ),
                           ),
                         ],
-                        onChanged: (value) => ref
-                            .read(timetableTeacherFilterProvider.notifier)
-                            .set(value),
+                        onChanged: (value) => ref.read(timetableTeacherFilterProvider.notifier).set(value),
                       ),
                       loading: () => const LinearProgressIndicator(),
                       error: (_, __) => const SizedBox(),
@@ -217,38 +281,117 @@ class _TimetableCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Card(
-      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-      child: ListTile(
-        title: Text('${entry.dayLabel} • ${entry.startTime}–${entry.endTime}'),
-        subtitle: Text(
-          '${entry.subjectName} • ${entry.teacherName}\n'
-          '${entry.className} ${entry.sectionName}${entry.room == null ? '' : ' • Room ${entry.room}'}',
+      elevation: 1,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.menu_book_outlined, size: 20, color: Theme.of(context).colorScheme.primary),
+                    const SizedBox(width: 8),
+                    Text(
+                      entry.subjectName,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                  ],
+                ),
+                if (canManage)
+                  PopupMenuButton<String>(
+                    onSelected: (action) {
+                      if (action == 'edit') {
+                        showDialog<void>(
+                          context: context,
+                          builder: (context) => TimetableEntryForm(entry: entry),
+                        );
+                      } else if (action == 'delete') {
+                        _delete(context, ref, entry.id);
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(
+                        value: 'edit',
+                        child: Row(
+                          children: [
+                            Icon(Icons.edit_outlined, size: 18),
+                            SizedBox(width: 8),
+                            Text('Edit Details'),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem(
+                        value: 'delete',
+                        child: Row(
+                          children: [
+                            Icon(Icons.delete_outline, size: 18, color: Theme.of(context).colorScheme.error),
+                            const SizedBox(width: 8),
+                            Text('Delete', style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                Chip(
+                  label: Text(entry.dayLabel),
+                  visualDensity: VisualDensity.compact,
+                  backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+                ),
+                Chip(
+                  avatar: const Icon(Icons.access_time_outlined, size: 14),
+                  label: Text('${entry.startTime} – ${entry.endTime}'),
+                  visualDensity: VisualDensity.compact,
+                ),
+                if (entry.room != null)
+                  Chip(
+                    avatar: const Icon(Icons.meeting_room_outlined, size: 14),
+                    label: Text('Room ${entry.room}'),
+                    visualDensity: VisualDensity.compact,
+                  ),
+              ],
+            ),
+            const Divider(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.person_outline, size: 16),
+                      const SizedBox(width: 6),
+                      Text(entry.teacherName, style: Theme.of(context).textTheme.bodyMedium),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      const Icon(Icons.school_outlined, size: 16),
+                      const SizedBox(width: 6),
+                      Text('${entry.className} - ${entry.sectionName}', style: Theme.of(context).textTheme.bodyMedium),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
-        isThreeLine: true,
-        trailing: canManage
-            ? PopupMenuButton<String>(
-                onSelected: (action) {
-                  if (action == 'edit') {
-                    showDialog<void>(
-                      context: context,
-                      builder: (context) => TimetableEntryForm(entry: entry),
-                    );
-                  } else if (action == 'delete') {
-                    _delete(context, ref, entry.id);
-                  }
-                },
-                itemBuilder: (context) => [
-                  const PopupMenuItem(
-                    value: 'edit',
-                    child: Text('Edit'),
-                  ),
-                  const PopupMenuItem(
-                    value: 'delete',
-                    child: Text('Delete'),
-                  ),
-                ],
-              )
-            : null,
       ),
     );
   }
@@ -257,14 +400,19 @@ class _TimetableCard extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Period'),
-        content: const Text('Are you sure you want to delete this period?'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+        title: const Text('Delete Period Assignment'),
+        content: const Text('Are you sure you want to permanently delete this period? This action cannot be undone.'),
         actions: [
-          TextButton(
+          OutlinedButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: const Text('Cancel'),
           ),
-          TextButton(
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Theme.of(context).colorScheme.onError,
+            ),
             onPressed: () => Navigator.of(context).pop(true),
             child: const Text('Delete'),
           ),
@@ -276,6 +424,11 @@ class _TimetableCard extends ConsumerWidget {
       try {
         await ref.read(timetableRepositoryProvider).delete(id);
         ref.invalidate(timetableEntriesProvider);
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Period deleted successfully.')),
+          );
+        }
       } catch (e) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

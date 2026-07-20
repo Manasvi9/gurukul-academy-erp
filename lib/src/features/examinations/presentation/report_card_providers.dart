@@ -4,24 +4,53 @@ import '../domain/entities/exam_subject.dart';
 import 'exam_providers.dart';
 import 'result_providers.dart';
 
-// Need individual student marks for report card
-final studentExamMarksProvider = FutureProvider.family<
-    List<({ExamSubject subject, ExamMark mark})>,
-    ({String examId, String studentId})>((ref, args) async {
+/// Defines the structure for a student's mark paired with its respective subject.
+typedef StudentReportMark = ({
+  ExamSubject subject,
+  ExamMark mark,
+});
+
+/// Returns every subject in an exam together with the selected student's mark.
+/// 
+/// If a mark hasn't been entered yet, an empty [ExamMark] is returned.
+/// Uses `autoDispose` to clear data from memory once the report card UI is unmounted.
+final studentExamMarksProvider =
+    FutureProvider.autoDispose.family<
+        List<StudentReportMark>,
+        ({String examId, String studentId})>((ref, args) async {
   final subjects = await ref.watch(examSubjectsProvider(args.examId).future);
   final allMarks = await ref.watch(allMarksProvider(args.examId).future);
 
-  return subjects.map((subject) {
-    final marks = allMarks[subject.id] ?? [];
-    final mark = marks.firstWhere(
-      (m) => m.studentId == args.studentId,
-      orElse: () => ExamMark(
-        studentId: args.studentId,
-        examSubjectId: subject.id,
-        marks: null,
-        isFinal: false,
-      ),
-    );
-    return (subject: subject, mark: mark);
-  }).toList();
+  final result = <StudentReportMark>[];
+
+  for (final subject in subjects) {
+    // Map conversion to ensure O(1) lookups instead of repeated list scanning
+    final marksByStudent = {
+      for (final mark in (allMarks[subject.id] ?? const <ExamMark>[]))
+        mark.studentId: mark,
+    };
+
+    final mark = marksByStudent[args.studentId] ??
+        _emptyMark(
+          studentId: args.studentId,
+          examSubjectId: subject.id,
+        );
+
+    result.add((subject: subject, mark: mark));
+  }
+
+  return result;
 });
+
+/// Generates a structured structural fallback instance when records are unassigned.
+ExamMark _emptyMark({
+  required String studentId,
+  required String examSubjectId,
+}) {
+  return ExamMark(
+    studentId: studentId,
+    examSubjectId: examSubjectId,
+    marks: null,
+    isFinal: false,
+  );
+}

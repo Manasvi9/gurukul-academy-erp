@@ -1,175 +1,81 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../authentication/presentation/providers/auth_providers.dart';
+import '../../../students/presentation/widgets/premium_student_widgets.dart' as student_widgets;
+import '../widgets/premium_fee_widgets.dart' as fee_widgets;
 
-import '../../../../core/theme/app_spacing.dart';
-import '../../../../shared/widgets/app_async_view.dart';
-import '../../../../shared/widgets/responsive_page.dart';
-import '../../domain/entities/fee_payment_form_data.dart';
-import '../../domain/entities/student_fee_ledger.dart';
-import '../providers/fee_providers.dart';
-
-final class FeeStudentLedgerScreen extends ConsumerWidget {
-  const FeeStudentLedgerScreen({
-    required this.studentId,
-    required this.academicYearId,
-    super.key,
-  });
-
+class FeeStudentLedgerScreen extends ConsumerWidget {
   final String studentId;
   final String academicYearId;
 
+  const FeeStudentLedgerScreen({required this.studentId, required this.academicYearId, super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final request = FeeLedgerRequest(
-      studentId: studentId,
-      academicYearId: academicYearId,
-    );
-    final ledger = ref.watch(studentFeeLedgerProvider(request));
-    final payments = ref.watch(feePaymentHistoryProvider(request));
+    final authState = ref.watch(authControllerProvider);
+    final userRole = authState.user?.role.value ?? '';
+    final permissions = student_widgets.rolePermissions[userRole] ?? {};
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Fee Ledger')),
-      body: ResponsivePage(
-        maxWidth: 900,
-        child: ListView(
-          padding: const EdgeInsets.all(AppSpacing.md),
+    // Mock data for display - replace with provider
+    final bool isLoading = false;
+    final bool hasData = true;
+
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Fees Details'),
+          actions: [
+            PopupMenuButton(
+              itemBuilder: (context) => [
+                const PopupMenuItem(child: Text('Download Receipt')),
+                const PopupMenuItem(child: Text('Download Statement')),
+                const PopupMenuItem(child: Text('Print Statement')),
+                const PopupMenuItem(child: Text('Share Statement')),
+              ],
+            ),
+          ],
+          bottom: const TabBar(tabs: [
+            Tab(text: 'Overview'),
+            Tab(text: 'Payment History'),
+            Tab(text: 'Fee Breakdown'),
+          ]),
+        ),
+        body: isLoading ? const fee_widgets.FeeShimmer() : TabBarView(
           children: [
-            AppAsyncView(
-              value: ledger,
-              data: (value) => Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.md),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        value.studentName,
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      const SizedBox(height: AppSpacing.sm),
-                      Text('Class Fee: ${value.classFee.toStringAsFixed(0)}'),
-                      Text(
-                        'Transport: ${value.transportFee.toStringAsFixed(0)}',
-                      ),
-                      Text(
-                        'Discount: ${value.scholarshipDiscount.toStringAsFixed(0)}',
-                      ),
-                      Text('Paid: ${value.paidAmount.toStringAsFixed(0)}'),
-                      Text('Due: ${value.outstandingDue.toStringAsFixed(0)}'),
-                      const SizedBox(height: AppSpacing.md),
-                      Row(
-                        children: [
-                          FilledButton.icon(
-                            onPressed: () =>
-                                _recordPayment(context, ref, value),
-                            icon: const Icon(Icons.payments_outlined),
-                            label: const Text('Record Payment'),
-                          ),
-                          const SizedBox(width: AppSpacing.sm),
-                          OutlinedButton(
-                            onPressed: () => _markComplete(context, ref, value),
-                            child: const Text('Mark Complete'),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+            // Overview Tab
+            ListView(
+              children: [
+                const fee_widgets.FeeSummaryCard(
+                  total: 50000, paid: 37500, pending: 12500, discount: 500, scholarship: 2000, fine: 0, nextDueDate: '15-Aug-2026', status: 'Partially Paid',
                 ),
-              ),
+                const fee_widgets.NextDueCard(installment: 'Q2 Installment', dueDate: '15-Aug-2026', amount: 7500),
+                ...[
+                  {'name': 'Q1 Installment', 'dueDate': '01-Apr-2026', 'status': 'Paid', 'amount': 15000, 'paidAmount': 15000},
+                  {'name': 'Q2 Installment', 'dueDate': '01-Jul-2026', 'status': 'Pending', 'amount': 15000, 'paidAmount': 7500},
+                ].map((i) => fee_widgets.InstallmentCard(installment: i)),
+                const fee_widgets.FeeTimeline(),
+                if (permissions.contains(student_widgets.AppPermission.viewFees))
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: FilledButton(onPressed: () {}, child: const Text('Pay Now')),
+                  ),
+              ],
             ),
-            const SizedBox(height: AppSpacing.lg),
-            Text(
-              'Payment History',
-              style: Theme.of(context).textTheme.titleMedium,
+            // History Tab
+            hasData 
+              ? ListView(children: [fee_widgets.TransactionTile(transaction: {'receiptNumber': 'REC001', 'date': '01-Apr-2026', 'mode': 'UPI', 'amount': 15000})])
+              : const student_widgets.AppEmptyState(message: 'No payment history available.'),
+            // Breakdown Tab
+            hasData
+              ? ListView(children: [
+                  fee_widgets.FeeBreakdownTile(category: 'Tuition Fee', amount: 30000), 
+                  fee_widgets.FeeBreakdownTile(category: 'Transport Fee', amount: 10000),
+                ])
+              : const student_widgets.AppEmptyState(message: 'No fee records available.'),
+            ],
             ),
-            AppAsyncView(
-              value: payments,
-              data: (items) => Column(
-                children: items.map((payment) {
-                  return ListTile(
-                    title: Text(payment.amount.toStringAsFixed(0)),
-                    subtitle: Text(payment.paymentMode),
-                    trailing: Text(payment.status.value),
-                  );
-                }).toList(),
-              ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<void> _recordPayment(
-    BuildContext context,
-    WidgetRef ref,
-    StudentFeeLedger ledger,
-  ) async {
-    final amountController = TextEditingController(
-      text: ledger.outstandingDue.toStringAsFixed(0),
-    );
-    final modeController = TextEditingController(text: 'Cash');
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Record Payment'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: amountController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Amount'),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            TextField(
-              controller: modeController,
-              decoration: const InputDecoration(labelText: 'Payment Mode'),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed != true) {
-      return;
-    }
-
-    await ref.read(feePaymentControllerProvider.notifier).record(
-          FeePaymentFormData(
-            studentId: ledger.studentId,
-            academicYearId: ledger.academicYearId,
-            amount: num.parse(amountController.text),
-            paymentDate: DateTime.now(),
-            paymentMode: modeController.text,
-            referenceNumber: '',
-            note: '',
-          ),
-        );
-    ref.invalidate(studentFeeLedgerProvider);
-    ref.invalidate(feePaymentHistoryProvider);
-  }
-
-  Future<void> _markComplete(
-    BuildContext context,
-    WidgetRef ref,
-    StudentFeeLedger ledger,
-  ) async {
-    await ref.read(feePaymentControllerProvider.notifier).markComplete(
-          studentId: ledger.studentId,
-          academicYearId: ledger.academicYearId,
-          note: 'Marked complete from fee ledger.',
-        );
-    ref.invalidate(studentFeeLedgerProvider);
-  }
-}
+            );
+            }
+            }

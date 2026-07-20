@@ -37,8 +37,7 @@ final class SectionsScreen extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: classes.when(
-          data: (items) =>
-              items.isEmpty ? null : () => _showForm(context, ref, items),
+          data: (items) => () => _showForm(context, ref, items),
           loading: () => null,
           error: (_, __) => null,
         ),
@@ -203,8 +202,10 @@ final class SectionsScreen extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   DropdownButtonFormField<String>(
-                    initialValue: classId,
+                    initialValue: classId.isEmpty ? null : classId,
                     decoration: const InputDecoration(labelText: 'Class'),
+                    validator: (value) =>
+                        value == null ? 'Class is required.' : null,
                     items: classes
                         .map(
                           (schoolClass) => DropdownMenuItem(
