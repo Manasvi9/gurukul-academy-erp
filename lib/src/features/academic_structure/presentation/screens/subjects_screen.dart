@@ -6,6 +6,7 @@ import '../../../../core/routing/app_routes.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/widgets/app_async_view.dart';
 import '../../../../shared/widgets/app_empty_view.dart';
+import '../../../../shared/widgets/premium_app_bar.dart';
 import '../../../../shared/widgets/responsive_page.dart';
 import '../../domain/entities/academic_class.dart';
 import '../../domain/entities/academic_subject.dart';
@@ -19,7 +20,7 @@ final class SubjectsScreen extends ConsumerWidget {
     final subjects = ref.watch(academicSubjectsProvider);
     final classes = ref.watch(activeAcademicClassesProvider);
     return Scaffold(
-      appBar: AppBar(
+      appBar: PremiumAppBar(
         title: const Text('Subjects'),
         actions: [
           IconButton(

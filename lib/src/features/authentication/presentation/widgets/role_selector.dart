@@ -27,8 +27,9 @@ final class RoleSelector extends StatelessWidget {
       dropdownColor: Colors.white,
 
       icon: const Icon(
-        Icons.keyboard_arrow_down_rounded,
+        Icons.expand_more_rounded,
         color: AppColors.navy,
+        size: 24,
       ),
 
       decoration: InputDecoration(
@@ -36,11 +37,6 @@ final class RoleSelector extends StatelessWidget {
 
         filled: true,
         fillColor: Colors.white,
-
-        prefixIcon: const Icon(
-          Icons.person_outline_rounded,
-          color: Color(0xFF6B7280),
-        ),
 
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 20,
@@ -152,12 +148,12 @@ final class RoleSelector extends StatelessWidget {
 
   IconData _iconForRole(AuthRole role) {
     return switch (role) {
-      AuthRole.systemAdmin => Icons.admin_panel_settings_rounded,
-      AuthRole.director => Icons.business_center_rounded,
-      AuthRole.principal => Icons.school_rounded,
-      AuthRole.teacher => Icons.menu_book_rounded,
-      AuthRole.parent => Icons.family_restroom_rounded,
-      AuthRole.student => Icons.badge_rounded,
+      AuthRole.systemAdmin => Icons.admin_panel_settings_outlined,
+      AuthRole.director => Icons.apartment_outlined,
+      AuthRole.principal => Icons.school_outlined,
+      AuthRole.teacher => Icons.person_outline_rounded,
+      AuthRole.parent => Icons.people_outline_rounded,
+      AuthRole.student => Icons.face_outlined,
     };
   }
 }

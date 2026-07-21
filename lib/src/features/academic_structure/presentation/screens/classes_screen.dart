@@ -6,6 +6,7 @@ import '../../../../core/routing/app_routes.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/widgets/app_async_view.dart';
 import '../../../../shared/widgets/app_empty_view.dart';
+import '../../../../shared/widgets/premium_app_bar.dart';
 import '../../../../shared/widgets/responsive_page.dart';
 import '../../domain/entities/academic_class.dart';
 import '../providers/academic_structure_providers.dart';
@@ -17,7 +18,7 @@ final class ClassesScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final classes = ref.watch(academicClassesProvider);
     return Scaffold(
-      appBar: AppBar(
+      appBar: PremiumAppBar(
         title: const Text('Classes'),
         actions: [
           IconButton(

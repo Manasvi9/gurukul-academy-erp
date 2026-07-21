@@ -6,6 +6,7 @@ import '../../../../core/routing/app_routes.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/widgets/app_async_view.dart';
 import '../../../../shared/widgets/app_empty_view.dart';
+import '../../../../shared/widgets/premium_app_bar.dart';
 import '../../../../shared/widgets/responsive_page.dart';
 import '../../domain/entities/academic_class.dart';
 import '../../domain/entities/academic_section.dart';
@@ -20,7 +21,7 @@ final class SectionsScreen extends ConsumerWidget {
     final classes = ref.watch(activeAcademicClassesProvider);
     final filter = ref.watch(sectionClassFilterProvider);
     return Scaffold(
-      appBar: AppBar(
+      appBar: PremiumAppBar(
         title: const Text('Sections'),
         actions: [
           IconButton(
