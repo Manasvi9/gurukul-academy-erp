@@ -68,7 +68,7 @@ class AppDrawer extends ConsumerWidget {
         ...menuItems.map((item) => NavigationDrawerDestination(
           icon: Icon(item.icon),
           label: Text(item.title),
-        )),
+        ),),
         const Divider(),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),

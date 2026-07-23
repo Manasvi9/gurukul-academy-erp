@@ -17,8 +17,6 @@ class FeeStudentLedgerScreen extends ConsumerWidget {
     final permissions = student_widgets.rolePermissions[userRole] ?? {};
 
     // Mock data for display - replace with provider
-    final bool isLoading = false;
-    final bool hasData = true;
 
     return DefaultTabController(
       length: 3,
@@ -39,9 +37,9 @@ class FeeStudentLedgerScreen extends ConsumerWidget {
             Tab(text: 'Overview'),
             Tab(text: 'Payment History'),
             Tab(text: 'Fee Breakdown'),
-          ]),
+          ],),
         ),
-        body: isLoading ? const fee_widgets.FeeShimmer() : TabBarView(
+        body: TabBarView(
           children: [
             // Overview Tab
             ListView(
@@ -63,16 +61,12 @@ class FeeStudentLedgerScreen extends ConsumerWidget {
               ],
             ),
             // History Tab
-            hasData 
-              ? ListView(children: [fee_widgets.TransactionTile(transaction: {'receiptNumber': 'REC001', 'date': '01-Apr-2026', 'mode': 'UPI', 'amount': 15000})])
-              : const student_widgets.AppEmptyState(message: 'No payment history available.'),
+            ListView(children: [fee_widgets.TransactionTile(transaction: const {'receiptNumber': 'REC001', 'date': '01-Apr-2026', 'mode': 'UPI', 'amount': 15000})]),
             // Breakdown Tab
-            hasData
-              ? ListView(children: [
+            ListView(children: [
                   fee_widgets.FeeBreakdownTile(category: 'Tuition Fee', amount: 30000), 
                   fee_widgets.FeeBreakdownTile(category: 'Transport Fee', amount: 10000),
-                ])
-              : const student_widgets.AppEmptyState(message: 'No fee records available.'),
+                ],),
             ],
             ),
             ),

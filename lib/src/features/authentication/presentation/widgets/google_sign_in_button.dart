@@ -31,7 +31,7 @@ class GoogleSignInButton extends StatelessWidget {
           width: 24,
           height: 24,
           child: Image.asset('assets/images/google.jpg', 
-              errorBuilder: (context, error, stackTrace) => const Icon(Icons.g_mobiledata)),
+              errorBuilder: (context, error, stackTrace) => const Icon(Icons.g_mobiledata),),
         ),
         label: Text(
           label,

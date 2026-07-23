@@ -27,7 +27,7 @@ class FeeSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final progress = total > 0 ? paid / total : 0.0;
-    Color statusColor = status == 'Fully Paid' ? Colors.green : (status == 'Overdue' ? Colors.red : Colors.orange);
+    final Color statusColor = status == 'Fully Paid' ? Colors.green : (status == 'Overdue' ? Colors.red : Colors.orange);
 
     return Card(
       elevation: 0,
@@ -44,7 +44,7 @@ class FeeSummaryCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            Align(alignment: Alignment.centerLeft, child: Chip(label: Text(status), backgroundColor: statusColor.withOpacity(0.1), labelStyle: TextStyle(color: statusColor))),
+            Align(alignment: Alignment.centerLeft, child: Chip(label: Text(status), backgroundColor: statusColor.withValues(alpha: 0.1), labelStyle: TextStyle(color: statusColor))),
             const SizedBox(height: 16),
             LinearProgressIndicator(value: progress, minHeight: 8, borderRadius: BorderRadius.circular(4)),
             const SizedBox(height: 8),
@@ -103,18 +103,18 @@ class InstallmentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color statusColor = installment['status'] == 'Paid' ? Colors.green : (installment['status'] == 'Overdue' ? Colors.red : Colors.orange);
+    final Color statusColor = installment['status'] == 'Paid' ? Colors.green : (installment['status'] == 'Overdue' ? Colors.red : Colors.orange);
     return Card(
       elevation: 0,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ExpansionTile(
-        title: Text(installment['name'], style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text('Due: ${installment['dueDate']}'),
-        trailing: Chip(label: Text(installment['status']), backgroundColor: statusColor.withOpacity(0.1), labelStyle: TextStyle(color: statusColor)),
+        title: Text(installment['name'] as String, style: const TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Text('Due: ${installment['dueDate'] as String}'),
+        trailing: Chip(label: Text(installment['status'] as String), backgroundColor: statusColor.withValues(alpha: 0.1), labelStyle: TextStyle(color: statusColor)),
         children: [
           ListTile(title: const Text('Amount'), trailing: Text('₹${installment['amount']}')),
           ListTile(title: const Text('Paid Amount'), trailing: Text('₹${installment['paidAmount']}')),
-          ListTile(title: const Text('Remaining Amount'), trailing: Text('₹${installment['amount'] - installment['paidAmount']}')),
+          ListTile(title: const Text('Remaining Amount'), trailing: Text('₹${(installment['amount'] as num) - (installment['paidAmount'] as num)}')),
         ],
       ),
     );
@@ -159,7 +159,7 @@ class FeeTimeline extends StatelessWidget {
             const SizedBox(width: 16),
             Text(e),
           ],
-        )).toList(),
+        ),).toList(),
       ),
     );
   }

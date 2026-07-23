@@ -19,7 +19,7 @@ class WizardStepIndicator extends StatelessWidget {
           color: index <= currentStep ? const Color(0xFF1A237E) : Colors.grey[300],
           borderRadius: BorderRadius.circular(4),
         ),
-      )),
+      ),),
     );
   }
 }

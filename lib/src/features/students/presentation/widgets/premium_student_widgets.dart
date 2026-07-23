@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 // --- Role Permission Configuration ---
 enum AppPermission {
@@ -37,11 +36,11 @@ class StudentListTile extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
       child: ListTile(
         onTap: onTap,
-        leading: CircleAvatar(child: Text(student['name'][0])),
-        title: Text(student['name'], style: const TextStyle(fontWeight: FontWeight.bold)),
+        leading: CircleAvatar(child: Text((student['name'] as String)[0])),
+        title: Text(student['name'] as String, style: const TextStyle(fontWeight: FontWeight.bold)),
         subtitle: Text('${student['class']} | Roll: ${student['roll']}'),
         trailing: Chip(
-          label: Text(student['status']),
+          label: Text(student['status'] as String),
           backgroundColor: student['status'] == 'Active' ? Colors.green.shade50 : Colors.red.shade50,
         ),
       ),
@@ -135,7 +134,7 @@ class StudentTimeline extends StatelessWidget {
         leading: const Icon(Icons.circle, size: 12),
         title: Text(e),
         dense: true,
-      )).toList(),
+      ),).toList(),
     );
   }
 }

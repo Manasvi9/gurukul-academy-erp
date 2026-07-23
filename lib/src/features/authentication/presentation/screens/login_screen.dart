@@ -9,11 +9,11 @@ import '../../../../shared/widgets/responsive_page.dart';
 import '../../domain/entities/auth_role.dart';
 import '../providers/auth_providers.dart';
 import '../providers/auth_state.dart';
+import '../widgets/google_sign_in_button.dart';
 import '../widgets/login_background.dart';
 import '../widgets/or_divider.dart';
 import '../widgets/password_text_field.dart';
 import '../widgets/role_selector.dart';
-import '../widgets/google_sign_in_button.dart';
 
 final class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});

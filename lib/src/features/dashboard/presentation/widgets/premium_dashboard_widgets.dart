@@ -34,7 +34,7 @@ class PremiumHeader extends ConsumerWidget {
                     Scaffold.of(context).openDrawer();
                   },
                 );
-              }),
+              },),
               Row(
                 children: [
                   IconButton(
@@ -43,7 +43,7 @@ class PremiumHeader extends ConsumerWidget {
                   ),
                   const SizedBox(width: 16),
                   CircleAvatar(
-                    backgroundColor: Colors.white.withOpacity(0.2),
+                    backgroundColor: Colors.white.withValues(alpha: 0.2),
                     child: const Icon(Icons.person, color: Colors.white),
                   ),
                 ],

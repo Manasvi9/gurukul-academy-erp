@@ -115,12 +115,12 @@ class StudentDetailsScreen extends ConsumerWidget {
                             InfoRow(label: 'Father', value: detail.fatherName),
                             InfoRow(label: 'Mother', value: detail.motherName),
                             InfoRow(label: 'Mobile', value: detail.parentMobileNumber, onTap: () => launchUrl(Uri.parse('tel:${detail.parentMobileNumber}'))),
-                          ]),
+                          ],),
                           // Academic Info
                           InfoCard(title: 'Academic Information', children: [
                             InfoRow(label: 'Admission No', value: detail.srNumber),
                             InfoRow(label: 'Class', value: detail.className),
-                          ]),
+                          ],),
                           // Timeline
                           const InfoCard(title: 'Timeline', children: [StudentTimeline()]),
                         ],
